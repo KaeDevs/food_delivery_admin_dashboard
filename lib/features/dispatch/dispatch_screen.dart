@@ -3,10 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/order.dart';
 import '../../../providers/order_provider.dart';
 import '../../../providers/dispatch_provider.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../core/utils/extensions.dart';
 import '../../../shared/widgets/status_chip.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../../shared/widgets/detail_drawer.dart';
 import '../../../shared/layouts/two_pane_layout.dart';
 import '../live_ops/widgets/sla_badge.dart';
 
@@ -73,7 +76,7 @@ class _DispatchScreenState extends ConsumerState<DispatchScreen> {
           Row(
             children: [
               Text(
-                'Dispatch Configuration',
+                'Delivery Allocation Configuration',
                 style: theme.textTheme.headlineSmall,
               ),
               const Spacer(),
@@ -85,9 +88,12 @@ class _DispatchScreenState extends ConsumerState<DispatchScreen> {
                     .map(
                       (z) => DropdownMenuItem(
                         value: z.id,
-                        child: Text(
-                          z.name,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        child: Padding(
+                          padding: EdgeInsetsGeometry.only(left: 12),
+                          child: Text(
+                            z.name,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
                         ),
                       ),
                     )
@@ -168,12 +174,25 @@ class _DispatchScreenState extends ConsumerState<DispatchScreen> {
               listPane: _OrderListPane(
                 orders: dispatchableOrders,
                 selectedId: _selectedOrderId,
-                onSelect: (id) => setState(() => _selectedOrderId = id),
+                onSelect: (id) {
+                  setState(() => _selectedOrderId = id);
+                  if (!context.isLarge) {
+                    final order = dispatchableOrders.firstWhere((o) => o.id == id);
+                    showDetailDrawer(
+                      context,
+                      DetailDrawer(
+                        title: 'Allocate Order $id',
+                        scrollable: false,
+                        child: _OrderDispatchDetail(order: order),
+                      ),
+                    );
+                  }
+                },
               ),
               detailPane: selectedOrder != null
                   ? _OrderDispatchDetail(order: selectedOrder)
                   : const Center(
-                      child: Text('Select an order to view dispatch options'),
+                      child: Text('Select an order to view allocation options'),
                     ),
             ),
           ),
@@ -231,7 +250,7 @@ class _OrderListPane extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionHeader(title: 'Dispatch Queue'),
+        const SectionHeader(title: 'Delivery Allocation Queue'),
         Expanded(
           child: ListView.separated(
             itemCount: orders.length,
@@ -274,10 +293,40 @@ class _OrderListPane extends StatelessWidget {
   }
 }
 
-class _OrderDispatchDetail extends StatelessWidget {
+class _OrderDispatchDetail extends ConsumerStatefulWidget {
   final Order order;
 
   const _OrderDispatchDetail({required this.order});
+
+  @override
+  ConsumerState<_OrderDispatchDetail> createState() => _OrderDispatchDetailState();
+}
+
+class _OrderDispatchDetailState extends ConsumerState<_OrderDispatchDetail> {
+  final _riderSearchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _riderSearchController.dispose();
+    super.dispose();
+  }
+
+  void _assignRider(String riderId) {
+    if (riderId.isEmpty) return;
+    final auth = ref.read(authProvider);
+    ref
+        .read(orderProvider.notifier)
+        .reassignRider(
+          widget.order.id,
+          riderId,
+          'MANUAL_DISPATCH',
+          auth?.id ?? 'admin-000',
+          auth?.role ?? 'Admin',
+        );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Order ${widget.order.id} assigned to rider $riderId')),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -291,19 +340,19 @@ class _OrderDispatchDetail extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  'Dispatch Order ${order.id}',
+                  'Allocate Order ${widget.order.id}',
                   style: theme.textTheme.titleLarge,
                 ),
                 const Spacer(),
-                if (order.riderId != null)
+                if (widget.order.riderId != null)
                   StatusChip(
-                    label: 'Assigned to ${order.riderId}',
+                    label: 'Assigned to ${widget.order.riderId}',
                     color: kSuccess,
                   ),
               ],
             ),
             const SizedBox(height: 24),
-            const SectionHeader(title: 'Auto-Dispatch Recommendations'),
+            const SectionHeader(title: 'Auto-Allocation Recommendations'),
             const SizedBox(height: 16),
             // Mock recommendations
             _RiderOption(
@@ -312,6 +361,7 @@ class _OrderDispatchDetail extends StatelessWidget {
               eta: '5 min',
               isBest: true,
               score: 98,
+              onAssign: () => _assignRider('rid-001'),
             ),
             const SizedBox(height: 8),
             _RiderOption(
@@ -320,6 +370,7 @@ class _OrderDispatchDetail extends StatelessWidget {
               eta: '10 min',
               isBest: false,
               score: 85,
+              onAssign: () => _assignRider('rid-002'),
             ),
             const SizedBox(height: 8),
             _RiderOption(
@@ -328,6 +379,7 @@ class _OrderDispatchDetail extends StatelessWidget {
               eta: '12 min',
               isBest: false,
               score: 72,
+              onAssign: () => _assignRider('rid-003'),
             ),
             const SizedBox(height: 32),
             const SectionHeader(title: 'Manual Override'),
@@ -338,14 +390,12 @@ class _OrderDispatchDetail extends StatelessWidget {
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
               ),
+              controller: _riderSearchController,
             ),
             const SizedBox(height: 16),
             FilledButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Rider manually assigned')),
-                );
-              },
+              onPressed: () =>
+                  _assignRider(_riderSearchController.text),
               child: const Text('Assign Custom Rider'),
             ),
           ],
@@ -361,6 +411,7 @@ class _RiderOption extends StatelessWidget {
   final String eta;
   final bool isBest;
   final int score;
+  final VoidCallback onAssign;
 
   const _RiderOption({
     required this.name,
@@ -368,6 +419,7 @@ class _RiderOption extends StatelessWidget {
     required this.eta,
     required this.isBest,
     required this.score,
+    required this.onAssign,
   });
 
   @override
@@ -457,7 +509,7 @@ class _RiderOption extends StatelessWidget {
             ],
           ),
           const SizedBox(width: 16),
-          FilledButton.tonal(onPressed: () {}, child: const Text('Assign')),
+          FilledButton.tonal(onPressed: onAssign, child: const Text('Assign')),
         ],
       ),
     );

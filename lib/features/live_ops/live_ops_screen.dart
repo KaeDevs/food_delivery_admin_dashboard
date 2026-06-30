@@ -8,6 +8,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../shared/widgets/status_chip.dart';
 import '../../shared/widgets/section_header.dart';
+import '../../shared/widgets/empty_state.dart';
 import 'widgets/sla_badge.dart';
 import 'widgets/intervention_sheet.dart';
 
@@ -34,14 +35,17 @@ class _LiveOpsScreenState extends ConsumerState<LiveOpsScreen> {
     // Filter orders
     var filteredOrders = List<Order>.from(allOrders);
     if (_zoneFilter != 'all') {
-      filteredOrders = filteredOrders.where((o) => o.zoneId == _zoneFilter).toList();
+      filteredOrders = filteredOrders
+          .where((o) => o.zoneId == _zoneFilter)
+          .toList();
     }
     if (_delayedOnly) {
       filteredOrders = filteredOrders.where((o) => o.isSlaBreached).toList();
     }
     if (_searchQuery.isNotEmpty) {
-      filteredOrders = filteredOrders.where((o) =>
-          o.id.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+      filteredOrders = filteredOrders
+          .where((o) => o.id.toLowerCase().contains(_searchQuery.toLowerCase()))
+          .toList();
     }
 
     // Sort: SLA breached first, then by placedAt descending
@@ -65,9 +69,21 @@ class _LiveOpsScreenState extends ConsumerState<LiveOpsScreen> {
             spacing: 16,
             runSpacing: 8,
             children: [
-              _StatChip(label: 'Active', value: '${active.length}', color: kInfo),
-              _StatChip(label: 'Delayed', value: '${delayed.length}', color: kDanger),
-              _StatChip(label: 'SLA At Risk', value: '${allOrders.where((o) => o.isSlaBreached).length}', color: kWarning),
+              _StatChip(
+                label: 'Active',
+                value: '${active.length}',
+                color: kInfo,
+              ),
+              _StatChip(
+                label: 'Delayed',
+                value: '${delayed.length}',
+                color: kDanger,
+              ),
+              _StatChip(
+                label: 'SLA At Risk',
+                value: '${allOrders.where((o) => o.isSlaBreached).length}',
+                color: kWarning,
+              ),
               _StatChip(label: 'Avg ETA', value: '32 min', color: kNeutral),
             ],
           ),
@@ -84,13 +100,39 @@ class _LiveOpsScreenState extends ConsumerState<LiveOpsScreen> {
                   value: _zoneFilter,
                   isDense: true,
                   decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     border: OutlineInputBorder(),
                   ),
                   items: [
-                    const DropdownMenuItem(value: 'all', child: Text('All Zones', style: TextStyle(fontSize: 13))),
-                    ...['koramangala', 'whitefield', 'indiranagar', 'hsr_layout', 'electronic_city', 'jayanagar']
-                        .map((z) => DropdownMenuItem(value: z, child: Text(z.replaceAll('_', ' ').split(' ').map((w) => '${w[0].toUpperCase()}${w.substring(1)}').join(' '), style: const TextStyle(fontSize: 13)))),
+                    const DropdownMenuItem(
+                      value: 'all',
+                      child: Text('All Zones', style: TextStyle(fontSize: 13)),
+                    ),
+                    ...[
+                      'koramangala',
+                      'whitefield',
+                      'indiranagar',
+                      'hsr_layout',
+                      'electronic_city',
+                      'jayanagar',
+                    ].map(
+                      (z) => DropdownMenuItem(
+                        value: z,
+                        child: Text(
+                          z
+                              .replaceAll('_', ' ')
+                              .split(' ')
+                              .map(
+                                (w) => '${w[0].toUpperCase()}${w.substring(1)}',
+                              )
+                              .join(' '),
+                          style: const TextStyle(fontSize: 13),
+                        ),
+                      ),
+                    ),
                   ],
                   onChanged: (v) => setState(() => _zoneFilter = v ?? 'all'),
                 ),
@@ -108,7 +150,10 @@ class _LiveOpsScreenState extends ConsumerState<LiveOpsScreen> {
                   decoration: const InputDecoration(
                     hintText: 'Search order ID...',
                     prefixIcon: Icon(Icons.search, size: 18),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     border: OutlineInputBorder(),
                   ),
                   onChanged: (v) => setState(() => _searchQuery = v),
@@ -127,58 +172,120 @@ class _LiveOpsScreenState extends ConsumerState<LiveOpsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${filteredOrders.length} orders', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                      Text(
+                        '${filteredOrders.length} orders',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                       const SizedBox(height: 8),
                       Expanded(
-                        child: SingleChildScrollView(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: DataTable(
-                              headingRowHeight: 44,
-                              dataRowMinHeight: 48,
-                              dataRowMaxHeight: 52,
-                              columnSpacing: 20,
-                              showCheckboxColumn: false,
-                              columns: const [
-                                DataColumn(label: Text('Order ID')),
-                                DataColumn(label: Text('Status')),
-                                DataColumn(label: Text('Value'), numeric: true),
-                                DataColumn(label: Text('Zone')),
-                                DataColumn(label: Text('Placed')),
-                                DataColumn(label: Text('SLA')),
-                              ],
-                              rows: filteredOrders.map((order) {
-                                final isSelected = order.id == _selectedOrderId;
-                                return DataRow(
-                                  selected: isSelected,
-                                  color: WidgetStatePropertyAll(
-                                    order.isSlaBreached
-                                        ? kDanger.withOpacity(0.05)
-                                        : isSelected
-                                            ? theme.colorScheme.primaryContainer.withOpacity(0.3)
-                                            : null,
+                        child: filteredOrders.isEmpty
+                            ? const EmptyState(
+                                icon: Icons.inbox_outlined,
+                                title: 'No orders found',
+                                subtitle:
+                                    'Try adjusting your filters or search query.',
+                              )
+                            : SingleChildScrollView(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: DataTable(
+                                    headingRowHeight: 44,
+                                    dataRowMinHeight: 48,
+                                    dataRowMaxHeight: 52,
+                                    columnSpacing: 20,
+                                    showCheckboxColumn: false,
+                                    columns: const [
+                                      DataColumn(label: Text('Order ID')),
+                                      DataColumn(label: Text('Status')),
+                                      DataColumn(
+                                        label: Text('Value'),
+                                        numeric: true,
+                                      ),
+                                      DataColumn(label: Text('Zone')),
+                                      DataColumn(label: Text('Placed')),
+                                      DataColumn(label: Text('SLA')),
+                                    ],
+                                    rows: filteredOrders.map((order) {
+                                      final isSelected =
+                                          order.id == _selectedOrderId;
+                                      return DataRow(
+                                        selected: isSelected,
+                                        color: WidgetStatePropertyAll(
+                                          order.isSlaBreached
+                                              ? kDanger.withOpacity(0.05)
+                                              : isSelected
+                                              ? theme
+                                                    .colorScheme
+                                                    .primaryContainer
+                                                    .withOpacity(0.3)
+                                              : null,
+                                        ),
+                                        onSelectChanged: (_) => setState(
+                                          () => _selectedOrderId = order.id,
+                                        ),
+                                        cells: [
+                                          DataCell(
+                                            Text(
+                                              order.id,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            StatusChip(
+                                              label: order.statusLabel,
+                                              color: _statusColor(order.status),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Text(
+                                              Formatters.currency(
+                                                order.totalValue,
+                                              ),
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Text(
+                                              order.zoneId.replaceAll('_', ' '),
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(
+                                            Text(
+                                              Formatters.relativeTime(
+                                                order.placedAt,
+                                              ),
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                          DataCell(SlaBadge(order: order)),
+                                        ],
+                                      );
+                                    }).toList(),
                                   ),
-                                  onSelectChanged: (_) => setState(() => _selectedOrderId = order.id),
-                                  cells: [
-                                    DataCell(Text(order.id, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13))),
-                                    DataCell(StatusChip(label: order.statusLabel, color: _statusColor(order.status))),
-                                    DataCell(Text(Formatters.currency(order.totalValue), style: const TextStyle(fontSize: 13))),
-                                    DataCell(Text(order.zoneId.replaceAll('_', ' '), style: const TextStyle(fontSize: 13))),
-                                    DataCell(Text(Formatters.relativeTime(order.placedAt), style: const TextStyle(fontSize: 13))),
-                                    DataCell(SlaBadge(order: order)),
-                                  ],
-                                );
-                              }).toList(),
-                            ),
-                          ),
-                        ),
+                                ),
+                              ),
                       ),
                     ],
                   ),
                 ),
                 // Detail panel
                 if (selectedOrder != null) ...[
-                  VerticalDivider(width: 1, color: theme.colorScheme.outlineVariant),
+                  VerticalDivider(
+                    width: 1,
+                    color: theme.colorScheme.outlineVariant,
+                  ),
                   Expanded(
                     flex: 5,
                     child: _OrderDetailPanel(
@@ -198,11 +305,18 @@ class _LiveOpsScreenState extends ConsumerState<LiveOpsScreen> {
 
   Color _statusColor(OrderStatus status) {
     switch (status) {
-      case OrderStatus.delivered: return kSuccess;
-      case OrderStatus.cancelled: case OrderStatus.failed: return kDanger;
-      case OrderStatus.onTheWay: case OrderStatus.pickedUp: return kInfo;
-      case OrderStatus.preparing: return kWarning;
-      default: return kNeutral;
+      case OrderStatus.delivered:
+        return kSuccess;
+      case OrderStatus.cancelled:
+      case OrderStatus.failed:
+        return kDanger;
+      case OrderStatus.onTheWay:
+      case OrderStatus.pickedUp:
+        return kInfo;
+      case OrderStatus.preparing:
+        return kWarning;
+      default:
+        return kNeutral;
     }
   }
 }
@@ -211,7 +325,11 @@ class _StatChip extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
-  const _StatChip({required this.label, required this.value, required this.color});
+  const _StatChip({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -225,9 +343,23 @@ class _StatChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(value, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: color)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
           const SizedBox(width: 6),
-          Text(label, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w500)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: color,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ],
       ),
     );
@@ -238,13 +370,18 @@ class _OrderDetailPanel extends ConsumerWidget {
   final Order order;
   final List<dynamic> riders;
   final VoidCallback onClose;
-  const _OrderDetailPanel({required this.order, required this.riders, required this.onClose});
+  const _OrderDetailPanel({
+    required this.order,
+    required this.riders,
+    required this.onClose,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final auth = ref.watch(authProvider);
-    final isOpsAdmin = auth?.role == 'Super Admin' || auth?.role == 'Operations Admin';
+    final isOpsAdmin =
+        auth?.role == 'Super Admin' || auth?.role == 'Operations Admin';
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -252,12 +389,28 @@ class _OrderDetailPanel extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(order.id, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-              const SizedBox(width: 8),
-              StatusChip(label: order.statusLabel, color: _statusColor(order.status)),
-              const Spacer(),
-              IconButton(icon: const Icon(Icons.close, size: 20), onPressed: onClose),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                children: [
+                  Text(
+                    order.id,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  StatusChip(
+                    label: order.statusLabel,
+                    color: _statusColor(order.status),
+                  ),
+                ],
+              ),
+              IconButton(
+                icon: const Icon(Icons.close, size: 20),
+                onPressed: onClose,
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -268,9 +421,15 @@ class _OrderDetailPanel extends ConsumerWidget {
           _DetailRow('Zone', order.zoneId.replaceAll('_', ' ')),
           _DetailRow('Placed', Formatters.dateTime(order.placedAt)),
           if (order.promisedDeliveryAt != null)
-            _DetailRow('Promised Delivery', Formatters.dateTime(order.promisedDeliveryAt!)),
+            _DetailRow(
+              'Promised Delivery',
+              Formatters.dateTime(order.promisedDeliveryAt!),
+            ),
           if (order.actualDeliveryAt != null)
-            _DetailRow('Actual Delivery', Formatters.dateTime(order.actualDeliveryAt!)),
+            _DetailRow(
+              'Actual Delivery',
+              Formatters.dateTime(order.actualDeliveryAt!),
+            ),
 
           const SizedBox(height: 16),
           const SectionHeader(title: 'Order Timeline'),
@@ -280,15 +439,27 @@ class _OrderDetailPanel extends ConsumerWidget {
           const SizedBox(height: 16),
           const SectionHeader(title: 'Items'),
           const SizedBox(height: 8),
-          ...order.items.map((item) => Padding(
-            padding: const EdgeInsets.only(bottom: 4),
-            child: Row(
-              children: [
-                Expanded(child: Text('${item.name} × ${item.quantity}', style: theme.textTheme.bodySmall)),
-                Text(Formatters.currency(item.price), style: theme.textTheme.bodySmall),
-              ],
+          ...order.items.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      '${item.name} × ${item.quantity}',
+                      style: theme.textTheme.bodySmall,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    Formatters.currency(item.price),
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ],
+              ),
             ),
-          )),
+          ),
 
           if (order.riderId != null) ...[
             const SizedBox(height: 16),
@@ -296,7 +467,10 @@ class _OrderDetailPanel extends ConsumerWidget {
           ],
 
           // Intervention buttons
-          if (isOpsAdmin && order.status != OrderStatus.delivered && order.status != OrderStatus.cancelled && order.status != OrderStatus.failed) ...[
+          if (isOpsAdmin &&
+              order.status != OrderStatus.delivered &&
+              order.status != OrderStatus.cancelled &&
+              order.status != OrderStatus.failed) ...[
             const SizedBox(height: 24),
             const SectionHeader(title: 'Interventions'),
             const SizedBox(height: 12),
@@ -307,23 +481,45 @@ class _OrderDetailPanel extends ConsumerWidget {
                 OutlinedButton.icon(
                   icon: const Icon(Icons.swap_horiz, size: 16),
                   label: const Text('Reassign Rider'),
-                  onPressed: () => showInterventionDialog(context, ref, order, InterventionType.reassign),
+                  onPressed: () => showInterventionDialog(
+                    context,
+                    ref,
+                    order,
+                    InterventionType.reassign,
+                  ),
                 ),
                 OutlinedButton.icon(
                   icon: const Icon(Icons.schedule, size: 16),
                   label: const Text('Extend ETA'),
-                  onPressed: () => showInterventionDialog(context, ref, order, InterventionType.extendEta),
+                  onPressed: () => showInterventionDialog(
+                    context,
+                    ref,
+                    order,
+                    InterventionType.extendEta,
+                  ),
                 ),
                 OutlinedButton.icon(
                   icon: Icon(Icons.cancel_outlined, size: 16, color: kDanger),
                   label: Text('Force Cancel', style: TextStyle(color: kDanger)),
-                  style: OutlinedButton.styleFrom(side: BorderSide(color: kDanger)),
-                  onPressed: () => showInterventionDialog(context, ref, order, InterventionType.forceCancel),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: kDanger),
+                  ),
+                  onPressed: () => showInterventionDialog(
+                    context,
+                    ref,
+                    order,
+                    InterventionType.forceCancel,
+                  ),
                 ),
                 OutlinedButton.icon(
                   icon: const Icon(Icons.currency_rupee, size: 16),
                   label: const Text('Compensate'),
-                  onPressed: () => showInterventionDialog(context, ref, order, InterventionType.compensate),
+                  onPressed: () => showInterventionDialog(
+                    context,
+                    ref,
+                    order,
+                    InterventionType.compensate,
+                  ),
                 ),
               ],
             ),
@@ -335,11 +531,18 @@ class _OrderDetailPanel extends ConsumerWidget {
 
   Color _statusColor(OrderStatus status) {
     switch (status) {
-      case OrderStatus.delivered: return kSuccess;
-      case OrderStatus.cancelled: case OrderStatus.failed: return kDanger;
-      case OrderStatus.onTheWay: case OrderStatus.pickedUp: return kInfo;
-      case OrderStatus.preparing: return kWarning;
-      default: return kNeutral;
+      case OrderStatus.delivered:
+        return kSuccess;
+      case OrderStatus.cancelled:
+      case OrderStatus.failed:
+        return kDanger;
+      case OrderStatus.onTheWay:
+      case OrderStatus.pickedUp:
+        return kInfo;
+      case OrderStatus.preparing:
+        return kWarning;
+      default:
+        return kNeutral;
     }
   }
 }
@@ -357,8 +560,23 @@ class _DetailRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 140, child: Text(label, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant))),
-          Expanded(child: Text(value, style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500))),
+          SizedBox(
+            width: 140,
+            child: Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -376,9 +594,18 @@ class _OrderTimeline extends StatelessWidget {
     final currentIdx = statuses.indexOf(order.status);
 
     // Show only relevant statuses
-    final showStatuses = order.status == OrderStatus.cancelled || order.status == OrderStatus.failed
+    final showStatuses =
+        order.status == OrderStatus.cancelled ||
+            order.status == OrderStatus.failed
         ? [OrderStatus.placed, order.status]
-        : statuses.where((s) => s.index <= currentIdx && s != OrderStatus.cancelled && s != OrderStatus.failed).toList();
+        : statuses
+              .where(
+                (s) =>
+                    s.index <= currentIdx &&
+                    s != OrderStatus.cancelled &&
+                    s != OrderStatus.failed,
+              )
+              .toList();
 
     return Column(
       children: showStatuses.asMap().entries.map((e) {
@@ -392,14 +619,22 @@ class _OrderTimeline extends StatelessWidget {
             Column(
               children: [
                 Container(
-                  width: 12, height: 12,
+                  width: 12,
+                  height: 12,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: color,
-                    border: isCurrent ? Border.all(color: color, width: 2) : null,
+                    border: isCurrent
+                        ? Border.all(color: color, width: 2)
+                        : null,
                   ),
                 ),
-                if (!isLast) Container(width: 2, height: 24, color: kSuccess.withOpacity(0.3)),
+                if (!isLast)
+                  Container(
+                    width: 2,
+                    height: 24,
+                    color: kSuccess.withOpacity(0.3),
+                  ),
               ],
             ),
             const SizedBox(width: 8),
@@ -418,17 +653,28 @@ class _OrderTimeline extends StatelessWidget {
 
   String _label(OrderStatus s) {
     switch (s) {
-      case OrderStatus.placed: return 'Order Placed';
-      case OrderStatus.restaurantAccepted: return 'Restaurant Accepted';
-      case OrderStatus.preparing: return 'Preparing';
-      case OrderStatus.ready: return 'Ready for Pickup';
-      case OrderStatus.riderAssigned: return 'Rider Assigned';
-      case OrderStatus.riderAtRestaurant: return 'Rider at Restaurant';
-      case OrderStatus.pickedUp: return 'Picked Up';
-      case OrderStatus.onTheWay: return 'On the Way';
-      case OrderStatus.delivered: return 'Delivered';
-      case OrderStatus.cancelled: return 'Cancelled';
-      case OrderStatus.failed: return 'Failed';
+      case OrderStatus.placed:
+        return 'Order Placed';
+      case OrderStatus.restaurantAccepted:
+        return 'Restaurant Accepted';
+      case OrderStatus.preparing:
+        return 'Preparing';
+      case OrderStatus.ready:
+        return 'Ready for Pickup';
+      case OrderStatus.riderAssigned:
+        return 'Rider Assigned';
+      case OrderStatus.riderAtRestaurant:
+        return 'Rider at Restaurant';
+      case OrderStatus.pickedUp:
+        return 'Picked Up';
+      case OrderStatus.onTheWay:
+        return 'On the Way';
+      case OrderStatus.delivered:
+        return 'Delivered';
+      case OrderStatus.cancelled:
+        return 'Cancelled';
+      case OrderStatus.failed:
+        return 'Failed';
     }
   }
 }

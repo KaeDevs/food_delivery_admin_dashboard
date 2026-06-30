@@ -7,4 +7,5 @@ final campaignProvider = StateNotifierProvider<CampaignNotifier, List<Campaign>>
 class CampaignNotifier extends StateNotifier<List<Campaign>> {
   CampaignNotifier() : super(MockCampaigns.campaigns);
   void updateCampaign(String id, Campaign updated) { state = state.map((c) => c.id == id ? updated : c).toList(); }
+  void addCampaign(Campaign campaign) { state = [...state, campaign]; }
 }

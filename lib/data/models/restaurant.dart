@@ -30,6 +30,11 @@ class Restaurant {
   final double weeklySettlementPending;
   final int totalOrdersThisMonth;
   final bool isOnline;
+  final List<String> imageUrls;
+
+  /// Mock GPS coordinates for map display.
+  final double latitude;
+  final double longitude;
 
   const Restaurant({
     required this.id,
@@ -47,6 +52,9 @@ class Restaurant {
     required this.weeklySettlementPending,
     required this.totalOrdersThisMonth,
     required this.isOnline,
+    this.imageUrls = const [],
+    this.latitude = 12.9716,
+    this.longitude = 77.5946,
   });
 
   Restaurant copyWith({
@@ -65,6 +73,9 @@ class Restaurant {
     double? weeklySettlementPending,
     int? totalOrdersThisMonth,
     bool? isOnline,
+    List<String>? imageUrls,
+    double? latitude,
+    double? longitude,
   }) {
     return Restaurant(
       id: id ?? this.id,
@@ -85,6 +96,9 @@ class Restaurant {
       totalOrdersThisMonth:
           totalOrdersThisMonth ?? this.totalOrdersThisMonth,
       isOnline: isOnline ?? this.isOnline,
+      imageUrls: imageUrls ?? this.imageUrls,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 

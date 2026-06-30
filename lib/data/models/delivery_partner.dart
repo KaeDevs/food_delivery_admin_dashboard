@@ -59,6 +59,10 @@ class DeliveryPartner {
   final DateTime? licenceExpiry;
   final List<DisciplineEvent> disciplineHistory;
 
+  /// Mock GPS coordinates for map display.
+  final double latitude;
+  final double longitude;
+
   const DeliveryPartner({
     required this.id,
     required this.name,
@@ -77,6 +81,8 @@ class DeliveryPartner {
     required this.licenceStatus,
     this.licenceExpiry,
     this.disciplineHistory = const [],
+    this.latitude = 12.9716,
+    this.longitude = 77.5946,
   });
 
   DeliveryPartner copyWith({
@@ -97,6 +103,8 @@ class DeliveryPartner {
     String? licenceStatus,
     DateTime? licenceExpiry,
     List<DisciplineEvent>? disciplineHistory,
+    double? latitude,
+    double? longitude,
   }) {
     return DeliveryPartner(
       id: id ?? this.id,
@@ -116,6 +124,8 @@ class DeliveryPartner {
       licenceStatus: licenceStatus ?? this.licenceStatus,
       licenceExpiry: licenceExpiry ?? this.licenceExpiry,
       disciplineHistory: disciplineHistory ?? this.disciplineHistory,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
     );
   }
 

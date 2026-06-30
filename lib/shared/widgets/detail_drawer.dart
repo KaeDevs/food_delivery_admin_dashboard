@@ -10,12 +10,15 @@ void showDetailDrawer(BuildContext context, Widget child) {
     pageBuilder: (ctx, anim1, anim2) {
       return Align(
         alignment: Alignment.centerRight,
-        child: Material(
-          elevation: 8,
-          child: SizedBox(
-            width: 480,
-            height: MediaQuery.of(ctx).size.height,
-            child: child,
+        child: ClipRRect(
+          borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
+          child: Material(
+            elevation: 8,
+            child: SizedBox(
+              width: 480,
+              height: MediaQuery.of(ctx).size.height,
+              child: child,
+            ),
           ),
         ),
       );
@@ -36,12 +39,14 @@ class DetailDrawer extends StatelessWidget {
   final String title;
   final Widget child;
   final List<Widget>? actions;
+  final bool scrollable;
 
   const DetailDrawer({
     super.key,
     required this.title,
     required this.child,
     this.actions,
+    this.scrollable = true,
   });
 
   @override
@@ -72,10 +77,15 @@ class DetailDrawer extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: child,
-          ),
+          child: scrollable
+              ? SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: child,
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: child,
+                ),
         ),
       ],
     );

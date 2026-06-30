@@ -29,7 +29,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final user = ref.read(authProvider.notifier).getUserByRole(_selectedRole);
     if (user != null) {
       ref.read(authProvider.notifier).login(user);
-      context.go('/executive');
+      context.go('/dashboard');
     }
   }
 

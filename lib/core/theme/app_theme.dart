@@ -5,27 +5,49 @@ class AppTheme {
   AppTheme._();
 
   static ThemeData get lightTheme {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: kSeedColor,
-      brightness: Brightness.light,
-    );
-    return _buildTheme(colorScheme);
+    final colorScheme =
+        ColorScheme.fromSeed(
+          seedColor: kSeedColor,
+          brightness: Brightness.light,
+        ).copyWith(
+          primary: kSeedColor,
+          onPrimary: Colors.white,
+          primaryContainer: const Color(0xFFFFF1EB), // Soft warm orange accent
+          onPrimaryContainer: kSeedColor,
+          surface: Colors.white,
+          onSurface: const Color(0xFF0F172A), // Slate 900
+          surfaceContainerHighest: const Color(0xFFF1F5F9), // Slate 100
+          outlineVariant: const Color(0xFFE2E8F0), // Slate 200
+          onSurfaceVariant: const Color(0xFF475569), // Slate 600
+        );
+    return _buildTheme(colorScheme, isDark: false);
   }
 
   static ThemeData get darkTheme {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: kSeedColor,
-      brightness: Brightness.dark,
-    );
-    return _buildTheme(colorScheme);
+    final colorScheme =
+        ColorScheme.fromSeed(
+          seedColor: kSeedColor,
+          brightness: Brightness.dark,
+        ).copyWith(
+          primary: kSeedColor,
+          onPrimary: Colors.white,
+          primaryContainer: const Color(0xFF2E1C15), // Deep warm orange container
+          onPrimaryContainer: const Color(0xFFFFB38A),
+          surface: const Color(0xFF121B2E), // Premium deep Navy Slate
+          onSurface: Colors.white,
+          surfaceContainerHighest: const Color(0xFF1E293B), // Slate 800
+          outlineVariant: const Color(0xFF24324F), // Premium dark border
+          onSurfaceVariant: const Color(0xFF94A3B8), // Slate 400
+        );
+    return _buildTheme(colorScheme, isDark: true);
   }
 
-  static ThemeData _buildTheme(ColorScheme colorScheme) {
+  static ThemeData _buildTheme(ColorScheme colorScheme, {required bool isDark}) {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
       fontFamily: 'Inter',
-      scaffoldBackgroundColor: colorScheme.surface,
+      scaffoldBackgroundColor: isDark ? const Color(0xFF090D16) : const Color(0xFFF8FAFC),
 
       // AppBar theme
       appBarTheme: AppBarTheme(
@@ -41,15 +63,12 @@ class AppTheme {
         ),
       ),
 
-      // Card theme: elevation 0, outlined border, borderRadius 12
+      // Card theme: elevation 0, outlined border, borderRadius 16
       cardTheme: CardThemeData(
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: colorScheme.outlineVariant,
-            width: 1,
-          ),
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(color: colorScheme.outlineVariant, width: 1),
         ),
         color: colorScheme.surface,
       ),
@@ -57,12 +76,8 @@ class AppTheme {
       // NavigationRail theme
       navigationRailTheme: NavigationRailThemeData(
         indicatorColor: colorScheme.primaryContainer,
-        selectedIconTheme: IconThemeData(
-          color: colorScheme.onPrimaryContainer,
-        ),
-        unselectedIconTheme: IconThemeData(
-          color: colorScheme.onSurfaceVariant,
-        ),
+        selectedIconTheme: IconThemeData(color: colorScheme.onPrimaryContainer),
+        unselectedIconTheme: IconThemeData(color: colorScheme.onSurfaceVariant),
         selectedLabelTextStyle: TextStyle(
           fontFamily: 'Inter',
           fontSize: 13,
@@ -102,9 +117,9 @@ class AppTheme {
       // FilledButton theme
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           textStyle: const TextStyle(
             fontFamily: 'Inter',
             fontSize: 14,
@@ -116,9 +131,8 @@ class AppTheme {
       // OutlinedButton theme
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           textStyle: const TextStyle(
             fontFamily: 'Inter',
             fontSize: 14,
@@ -140,8 +154,19 @@ class AppTheme {
 
       // Input decoration theme
       inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: isDark ? const Color(0xFF16223F) : const Color(0xFFF8FAFC),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: colorScheme.outlineVariant),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: colorScheme.outlineVariant),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -152,13 +177,16 @@ class AppTheme {
           fontSize: 14,
           color: colorScheme.onSurfaceVariant,
         ),
+        hintStyle: TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 14,
+          color: colorScheme.onSurfaceVariant.withOpacity(0.6),
+        ),
       ),
 
       // Chip theme
       chipTheme: ChipThemeData(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         labelStyle: const TextStyle(
           fontFamily: 'Inter',
           fontSize: 12,
@@ -168,9 +196,7 @@ class AppTheme {
 
       // Dialog theme
       dialogTheme: DialogThemeData(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
 
       // Divider theme

@@ -15,7 +15,7 @@ class TwoPaneLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    final isLarge = width >= 1280;
+    final isLarge = width >= 1200;
 
     if (!isLarge || detailPane == null) {
       return listPane;

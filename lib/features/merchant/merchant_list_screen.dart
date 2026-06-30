@@ -5,6 +5,7 @@ import '../../providers/restaurant_provider.dart';
 import '../../data/models/restaurant.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/utils/extensions.dart';
 import '../../shared/widgets/status_chip.dart';
 
 class MerchantListScreen extends ConsumerStatefulWidget {
@@ -29,7 +30,11 @@ class _MerchantListScreenState extends ConsumerState<MerchantListScreen> {
       filtered = filtered.where((r) => r.status.name == _statusFilter).toList();
     }
     if (_searchQuery.isNotEmpty) {
-      filtered = filtered.where((r) => r.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+      filtered = filtered
+          .where(
+            (r) => r.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+          )
+          .toList();
     }
 
     return Padding(
@@ -52,42 +57,113 @@ class _MerchantListScreenState extends ConsumerState<MerchantListScreen> {
                   const SizedBox(width: 12),
                   Text(
                     '${belowRating.length} restaurants below rating threshold (3.5)',
-                    style: const TextStyle(fontWeight: FontWeight.w600, color: kWarning),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: kWarning,
+                    ),
                   ),
                 ],
               ),
             ),
-          
-          Row(
-            children: [
-              Text('Merchant Management', style: theme.textTheme.headlineSmall),
-              const Spacer(),
-              SizedBox(
-                width: 240,
-                child: TextField(
-                  decoration: const InputDecoration(
-                    hintText: 'Search restaurants...',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  ),
-                  onChanged: (v) => setState(() => _searchQuery = v),
+
+          if (context.isCompact)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Merchant Management', style: theme.textTheme.headlineSmall),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: const InputDecoration(
+                          hintText: 'Search restaurants...',
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                        ),
+                        onChanged: (v) => setState(() => _searchQuery = v),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    DropdownButton<String>(
+                      value: _statusFilter,
+                      underline: const SizedBox(),
+                      alignment: Alignment.center,
+                      items: [
+                        const DropdownMenuItem(
+                          value: 'all',
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 16.0),
+                            child: Text('All Statuses'),
+                          ),
+                        ),
+                        ...RestaurantStatus.values.map(
+                          (s) => DropdownMenuItem(
+                            value: s.name,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 16.0),
+                              child: Text(s.name.toUpperCase()),
+                            ),
+                          ),
+                        ),
+                      ],
+                      onChanged: (v) => setState(() => _statusFilter = v ?? 'all'),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 16),
-              DropdownButton<String>(
-                value: _statusFilter,
-                underline: const SizedBox(),
-                items: [
-                  const DropdownMenuItem(value: 'all', child: Text('All Statuses')),
-                  ...RestaurantStatus.values.map((s) => DropdownMenuItem(
-                    value: s.name, child: Text(s.name.toUpperCase()),
-                  )),
-                ],
-                onChanged: (v) => setState(() => _statusFilter = v ?? 'all'),
-              ),
-            ],
-          ),
+              ],
+            )
+          else
+            Row(
+              children: [
+                Text('Merchant Management', style: theme.textTheme.headlineSmall),
+                const Spacer(),
+                SizedBox(
+                  width: 240,
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      hintText: 'Search restaurants...',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                    ),
+                    onChanged: (v) => setState(() => _searchQuery = v),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                DropdownButton<String>(
+                  value: _statusFilter,
+                  underline: const SizedBox(),
+                  alignment: Alignment.center,
+                  items: [
+                    const DropdownMenuItem(
+                      value: 'all',
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 16.0),
+                        child: Text('All Statuses'),
+                      ),
+                    ),
+                    ...RestaurantStatus.values.map(
+                      (s) => DropdownMenuItem(
+                        value: s.name,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 16.0),
+                          child: Text(s.name.toUpperCase()),
+                        ),
+                      ),
+                    ),
+                  ],
+                  onChanged: (v) => setState(() => _statusFilter = v ?? 'all'),
+                ),
+              ],
+            ),
           const SizedBox(height: 24),
           Expanded(
             child: SingleChildScrollView(
@@ -108,22 +184,43 @@ class _MerchantListScreenState extends ConsumerState<MerchantListScreen> {
                   rows: filtered.map((r) {
                     final isLowRating = r.rating > 0 && r.rating < 3.5;
                     return DataRow(
-                      color: WidgetStatePropertyAll(isLowRating ? kWarning.withOpacity(0.05) : null),
+                      color: WidgetStatePropertyAll(
+                        isLowRating ? kWarning.withOpacity(0.05) : null,
+                      ),
                       cells: [
-                        DataCell(Text(r.name, style: const TextStyle(fontWeight: FontWeight.w600))),
+                        DataCell(
+                          Text(
+                            r.name,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ),
                         DataCell(Text(r.cuisine)),
                         DataCell(Text(r.zoneId)),
-                        DataCell(StatusChip(
-                          label: r.status.name.toUpperCase(),
-                          color: r.status == RestaurantStatus.active ? kSuccess : kNeutral,
-                        )),
+                        DataCell(
+                          StatusChip(
+                            label: r.status.name.toUpperCase(),
+                            color: r.status == RestaurantStatus.active
+                                ? kSuccess
+                                : kNeutral,
+                          ),
+                        ),
                         DataCell(
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.star, size: 16, color: isLowRating ? kWarning : kSuccess),
+                              Icon(
+                                Icons.star,
+                                size: 16,
+                                color: isLowRating ? kWarning : kSuccess,
+                              ),
                               const SizedBox(width: 4),
-                              Text(r.rating.toStringAsFixed(1), style: TextStyle(color: isLowRating ? kWarning : null, fontWeight: FontWeight.w600)),
+                              Text(
+                                r.rating.toStringAsFixed(1),
+                                style: TextStyle(
+                                  color: isLowRating ? kWarning : null,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ],
                           ),
                         ),

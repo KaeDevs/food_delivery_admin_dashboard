@@ -9,8 +9,8 @@ class MockAdminUsers {
     users = [
       AdminUser(
         id: 'admin-001',
-        name: 'Rajesh Kumar',
-        email: 'rajesh@admin.com',
+        name: 'Thiruu',
+        email: 'thiru@admin.com',
         role: 'Super Admin',
         scope: 'global',
         isActive: true,
@@ -86,6 +86,11 @@ class MockAdminUsers {
 class MockZones {
   static List<Zone> zones = [];
 
+  // ---------------------------------------------------------------------------
+  // Hexagonal boundary polygons (~1.5 km radius) for each Bengaluru zone.
+  // Points are ordered clockwise starting from the northernmost vertex.
+  // ---------------------------------------------------------------------------
+
   static void seed() {
     zones = [
       const Zone(
@@ -97,6 +102,14 @@ class MockZones {
         availableRiders: 5,
         demandSupplyRatio: 2.4,
         isSurgeActive: true,
+        coordinates: [
+          GeoPoint(12.9487, 77.6245),
+          GeoPoint(12.9420, 77.6379),
+          GeoPoint(12.9284, 77.6379),
+          GeoPoint(12.9217, 77.6245),
+          GeoPoint(12.9284, 77.6111),
+          GeoPoint(12.9420, 77.6111),
+        ],
       ),
       const Zone(
         id: 'whitefield',
@@ -107,6 +120,14 @@ class MockZones {
         availableRiders: 6,
         demandSupplyRatio: 1.3,
         isSurgeActive: false,
+        coordinates: [
+          GeoPoint(12.9833, 77.7500),
+          GeoPoint(12.9766, 77.7634),
+          GeoPoint(12.9630, 77.7634),
+          GeoPoint(12.9563, 77.7500),
+          GeoPoint(12.9630, 77.7366),
+          GeoPoint(12.9766, 77.7366),
+        ],
       ),
       const Zone(
         id: 'indiranagar',
@@ -117,6 +138,14 @@ class MockZones {
         availableRiders: 7,
         demandSupplyRatio: 1.4,
         isSurgeActive: false,
+        coordinates: [
+          GeoPoint(12.9919, 77.6408),
+          GeoPoint(12.9852, 77.6542),
+          GeoPoint(12.9716, 77.6542),
+          GeoPoint(12.9649, 77.6408),
+          GeoPoint(12.9716, 77.6274),
+          GeoPoint(12.9852, 77.6274),
+        ],
       ),
       const Zone(
         id: 'hsr_layout',
@@ -127,6 +156,14 @@ class MockZones {
         availableRiders: 8,
         demandSupplyRatio: 0.75,
         isSurgeActive: false,
+        coordinates: [
+          GeoPoint(12.9251, 77.6389),
+          GeoPoint(12.9184, 77.6523),
+          GeoPoint(12.9048, 77.6523),
+          GeoPoint(12.8981, 77.6389),
+          GeoPoint(12.9048, 77.6255),
+          GeoPoint(12.9184, 77.6255),
+        ],
       ),
       const Zone(
         id: 'electronic_city',
@@ -137,6 +174,14 @@ class MockZones {
         availableRiders: 3,
         demandSupplyRatio: 1.3,
         isSurgeActive: false,
+        coordinates: [
+          GeoPoint(12.8534, 77.6770),
+          GeoPoint(12.8467, 77.6904),
+          GeoPoint(12.8331, 77.6904),
+          GeoPoint(12.8264, 77.6770),
+          GeoPoint(12.8331, 77.6636),
+          GeoPoint(12.8467, 77.6636),
+        ],
       ),
       const Zone(
         id: 'jayanagar',
@@ -147,6 +192,14 @@ class MockZones {
         availableRiders: 7,
         demandSupplyRatio: 0.4,
         isSurgeActive: false,
+        coordinates: [
+          GeoPoint(12.9443, 77.5826),
+          GeoPoint(12.9376, 77.5960),
+          GeoPoint(12.9240, 77.5960),
+          GeoPoint(12.9173, 77.5826),
+          GeoPoint(12.9240, 77.5692),
+          GeoPoint(12.9376, 77.5692),
+        ],
       ),
     ];
   }

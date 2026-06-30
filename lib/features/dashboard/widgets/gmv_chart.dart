@@ -23,11 +23,18 @@ class GmvChart extends StatelessWidget {
                 FlSpot(e.key.toDouble(), e.value.gmv / 1000)).toList(),
             isCurved: true,
             color: kChartPalette[0],
-            barWidth: 2.5,
+            barWidth: 3.0,
             dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
-              color: kChartPalette[0].withOpacity(0.08),
+              gradient: LinearGradient(
+                colors: [
+                  kChartPalette[0].withOpacity(0.16),
+                  kChartPalette[0].withOpacity(0.0),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
             ),
           ),
           // Order volume line
@@ -38,7 +45,7 @@ class GmvChart extends StatelessWidget {
             color: kChartPalette[1],
             barWidth: 2,
             dotData: const FlDotData(show: false),
-            dashArray: [5, 3],
+            dashArray: [5, 4],
           ),
         ],
         titlesData: FlTitlesData(
@@ -53,19 +60,38 @@ class GmvChart extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     Formatters.dateShort(snapshots[idx].date),
-                    style: TextStyle(fontSize: 10, color: theme.colorScheme.onSurfaceVariant),
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 10,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 );
               },
             ),
           ),
           leftTitles: AxisTitles(
-            axisNameWidget: Text('GMV (₹K)', style: TextStyle(fontSize: 10, color: theme.colorScheme.onSurfaceVariant)),
+            axisNameWidget: Text(
+              'GMV (₹K)',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
             sideTitles: SideTitles(
               showTitles: true,
               reservedSize: 50,
               getTitlesWidget: (value, meta) {
-                return Text('₹${value.toInt()}K', style: TextStyle(fontSize: 10, color: theme.colorScheme.onSurfaceVariant));
+                return Text(
+                  '₹${value.toInt()}K',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 10,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                );
               },
             ),
           ),
@@ -76,22 +102,28 @@ class GmvChart extends StatelessWidget {
           show: true,
           drawVerticalLine: false,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: theme.colorScheme.outlineVariant.withOpacity(0.5),
-            strokeWidth: 0.5,
+            color: theme.colorScheme.outlineVariant.withOpacity(0.4),
+            strokeWidth: 1.0,
+            dashArray: [4, 4],
           ),
         ),
         borderData: FlBorderData(show: false),
         lineTouchData: LineTouchData(
           touchTooltipData: LineTouchTooltipData(
+            tooltipRoundedRadius: 8,
+            getTooltipColor: (spot) => (theme.brightness == Brightness.dark
+                ? const Color(0xFF1E293B)
+                : const Color(0xFF0F172A)).withOpacity(0.8),
             getTooltipItems: (spots) {
               return spots.map((spot) {
                 final isGmv = spot.barIndex == 0;
                 return LineTooltipItem(
-                  isGmv ? '₹${spot.y.toStringAsFixed(0)}K' : '${spot.y.toInt()} orders',
+                  isGmv ? 'GMV: ₹${spot.y.toStringAsFixed(1)}K' : 'Orders: ${spot.y.toInt()}',
                   TextStyle(
+                    fontFamily: 'Inter',
                     color: isGmv ? kChartPalette[0] : kChartPalette[1],
                     fontSize: 12,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.bold,
                   ),
                 );
               }).toList();

@@ -9,8 +9,8 @@ extension BuildContextX on BuildContext {
   double get screenWidth => MediaQuery.of(this).size.width;
   double get screenHeight => MediaQuery.of(this).size.height;
   bool get isCompact => screenWidth < 900;
-  bool get isMedium => screenWidth >= 900 && screenWidth < 1280;
-  bool get isLarge => screenWidth >= 1280;
+  bool get isMedium => screenWidth >= 900 && screenWidth < 1200;
+  bool get isLarge => screenWidth >= 1200;
 }
 
 /// String extensions

@@ -1,3 +1,10 @@
+/// A single lat/lng point used for zone boundary polygons.
+class GeoPoint {
+  final double latitude;
+  final double longitude;
+  const GeoPoint(this.latitude, this.longitude);
+}
+
 class Zone {
   final String id;
   final String name;
@@ -8,6 +15,10 @@ class Zone {
   final double demandSupplyRatio;
   final bool isSurgeActive;
 
+  /// Polygon boundary points for the zone (used by GoogleMap Polygon overlay).
+  /// Falls back to an empty list when not provided.
+  final List<GeoPoint> coordinates;
+
   const Zone({
     required this.id,
     required this.name,
@@ -17,6 +28,7 @@ class Zone {
     required this.availableRiders,
     required this.demandSupplyRatio,
     this.isSurgeActive = false,
+    this.coordinates = const [],
   });
 
   Zone copyWith({
@@ -28,6 +40,7 @@ class Zone {
     int? availableRiders,
     double? demandSupplyRatio,
     bool? isSurgeActive,
+    List<GeoPoint>? coordinates,
   }) {
     return Zone(
       id: id ?? this.id,
@@ -38,6 +51,7 @@ class Zone {
       availableRiders: availableRiders ?? this.availableRiders,
       demandSupplyRatio: demandSupplyRatio ?? this.demandSupplyRatio,
       isSurgeActive: isSurgeActive ?? this.isSurgeActive,
+      coordinates: coordinates ?? this.coordinates,
     );
   }
 }

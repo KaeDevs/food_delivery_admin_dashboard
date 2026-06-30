@@ -11,6 +11,8 @@ class Customer {
   final String subscriptionStatus; // 'none' | 'active' | 'expired'
   final DateTime lastOrderDate;
   final String acquisitionCohort; // 'YYYY-MM'
+  final String locationArea;
+  final String fullAddress;
 
   const Customer({
     required this.id,
@@ -25,6 +27,8 @@ class Customer {
     required this.subscriptionStatus,
     required this.lastOrderDate,
     required this.acquisitionCohort,
+    required this.locationArea,
+    required this.fullAddress,
   });
 
   Customer copyWith({
@@ -40,6 +44,8 @@ class Customer {
     String? subscriptionStatus,
     DateTime? lastOrderDate,
     String? acquisitionCohort,
+    String? locationArea,
+    String? fullAddress,
   }) {
     return Customer(
       id: id ?? this.id,
@@ -54,6 +60,8 @@ class Customer {
       subscriptionStatus: subscriptionStatus ?? this.subscriptionStatus,
       lastOrderDate: lastOrderDate ?? this.lastOrderDate,
       acquisitionCohort: acquisitionCohort ?? this.acquisitionCohort,
+      locationArea: locationArea ?? this.locationArea,
+      fullAddress: fullAddress ?? this.fullAddress,
     );
   }
 }

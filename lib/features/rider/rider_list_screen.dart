@@ -5,6 +5,7 @@ import '../../providers/rider_provider.dart';
 import '../../data/models/delivery_partner.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/utils/extensions.dart';
 import '../../shared/widgets/status_chip.dart';
 
 class RiderListScreen extends ConsumerStatefulWidget {
@@ -40,42 +41,84 @@ class _RiderListScreenState extends ConsumerState<RiderListScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text('Rider Management', style: theme.textTheme.headlineSmall),
-              const Spacer(),
-              SizedBox(
-                width: 240,
-                child: TextField(
-                  decoration: const InputDecoration(
-                    hintText: 'Search riders...',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  ),
-                  onChanged: (v) => setState(() => _searchQuery = v),
+          if (context.isCompact)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Rider Management', style: theme.textTheme.headlineSmall),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: const InputDecoration(
+                          hintText: 'Search riders...',
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                        onChanged: (v) => setState(() => _searchQuery = v),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    DropdownButton<String>(
+                      value: _statusFilter,
+                      underline: const SizedBox(),
+                      items: [
+                        const DropdownMenuItem(value: 'all', child: Text('All Statuses')),
+                        ...RiderStatus.values.map((s) => DropdownMenuItem(
+                          value: s.name, child: Text(s.name.toUpperCase()),
+                        )),
+                      ],
+                      onChanged: (v) => setState(() => _statusFilter = v ?? 'all'),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(width: 16),
-              DropdownButton<String>(
-                value: _statusFilter,
-                underline: const SizedBox(),
-                items: [
-                  const DropdownMenuItem(value: 'all', child: Text('All Statuses')),
-                  ...RiderStatus.values.map((s) => DropdownMenuItem(
-                    value: s.name, child: Text(s.name.toUpperCase()),
-                  )),
-                ],
-                onChanged: (v) => setState(() => _statusFilter = v ?? 'all'),
-              ),
-              const SizedBox(width: 16),
-              FilterChip(
-                label: const Text('Has Warnings'),
-                selected: _hasWarnings,
-                onSelected: (v) => setState(() => _hasWarnings = v),
-              ),
-            ],
-          ),
+                const SizedBox(height: 12),
+                FilterChip(
+                  label: const Text('Has Warnings'),
+                  selected: _hasWarnings,
+                  onSelected: (v) => setState(() => _hasWarnings = v),
+                ),
+              ],
+            )
+          else
+            Row(
+              children: [
+                Text('Rider Management', style: theme.textTheme.headlineSmall),
+                const Spacer(),
+                SizedBox(
+                  width: 240,
+                  child: TextField(
+                    decoration: const InputDecoration(
+                      hintText: 'Search riders...',
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    ),
+                    onChanged: (v) => setState(() => _searchQuery = v),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                DropdownButton<String>(
+                  value: _statusFilter,
+                  underline: const SizedBox(),
+                  items: [
+                    const DropdownMenuItem(value: 'all', child: Text('All Statuses')),
+                    ...RiderStatus.values.map((s) => DropdownMenuItem(
+                      value: s.name, child: Text(s.name.toUpperCase()),
+                    )),
+                  ],
+                  onChanged: (v) => setState(() => _statusFilter = v ?? 'all'),
+                ),
+                const SizedBox(width: 16),
+                FilterChip(
+                  label: const Text('Has Warnings'),
+                  selected: _hasWarnings,
+                  onSelected: (v) => setState(() => _hasWarnings = v),
+                ),
+              ],
+            ),
           const SizedBox(height: 24),
           Expanded(
             child: SingleChildScrollView(
@@ -85,6 +128,7 @@ class _RiderListScreenState extends ConsumerState<RiderListScreen> {
                   headingRowHeight: 48,
                   showCheckboxColumn: false,
                   columns: const [
+                    DataColumn(label: Text('ID')),
                     DataColumn(label: Text('Name')),
                     DataColumn(label: Text('Zone')),
                     DataColumn(label: Text('Status')),
@@ -97,6 +141,7 @@ class _RiderListScreenState extends ConsumerState<RiderListScreen> {
                     return DataRow(
                       color: WidgetStatePropertyAll(r.isSuspended ? kDanger.withOpacity(0.05) : null),
                       cells: [
+                        DataCell(Text(r.id, style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.outline))),
                         DataCell(Text(r.name, style: const TextStyle(fontWeight: FontWeight.w600))),
                         DataCell(Text(r.zoneId)),
                         DataCell(StatusChip(
@@ -117,9 +162,19 @@ class _RiderListScreenState extends ConsumerState<RiderListScreen> {
                           ),
                         ),
                         DataCell(
-                          OutlinedButton(
-                            onPressed: () => context.push('/riders/${r.id}'),
-                            child: const Text('View'),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              OutlinedButton(
+                                onPressed: () => context.push('/riders/${r.id}'),
+                                child: const Text('View'),
+                              ),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                icon: const Icon(Icons.edit, size: 20),
+                                onPressed: () => _showEditRiderDialog(r),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -131,6 +186,68 @@ class _RiderListScreenState extends ConsumerState<RiderListScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showEditRiderDialog(DeliveryPartner r) {
+    final nameCtrl = TextEditingController(text: r.name);
+    final zoneCtrl = TextEditingController(text: r.zoneId);
+    RiderStatus selectedStatus = r.status;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Edit Rider'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameCtrl,
+                    decoration: const InputDecoration(labelText: 'Name'),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: zoneCtrl,
+                    decoration: const InputDecoration(labelText: 'Zone ID'),
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<RiderStatus>(
+                    value: selectedStatus,
+                    decoration: const InputDecoration(labelText: 'Status'),
+                    items: RiderStatus.values.map((s) {
+                      return DropdownMenuItem(value: s, child: Text(s.name.toUpperCase()));
+                    }).toList(),
+                    onChanged: (val) {
+                      if (val != null) setState(() => selectedStatus = val);
+                    },
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    final updated = r.copyWith(
+                      name: nameCtrl.text,
+                      zoneId: zoneCtrl.text,
+                      status: selectedStatus,
+                    );
+                    ref.read(riderProvider.notifier).updateRider(r.id, updated);
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 

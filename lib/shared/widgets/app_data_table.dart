@@ -51,27 +51,50 @@ class _AppDataTableState<T> extends State<AppDataTable<T>> {
       children: [
         if (widget.showRowCount)
           Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.only(bottom: 10, left: 4),
             child: Text(
-              '${widget.rows.length} records',
-              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              '${widget.rows.length} records found',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SingleChildScrollView(
-              child: DataTable(
-                sortColumnIndex: _sortColumnIndex,
-                sortAscending: _sortAscending,
-                columns: widget.columns,
-                rows: widget.rows.map((item) => widget.rowBuilder(item)).toList(),
-                showCheckboxColumn: false,
-                headingRowHeight: 48,
-                dataRowMinHeight: 52,
-                dataRowMaxHeight: 56,
-                columnSpacing: 24,
-                horizontalMargin: 16,
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: theme.colorScheme.outlineVariant),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(theme.brightness == Brightness.dark ? 0.2 : 0.01),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Theme(
+              data: theme.copyWith(
+                dividerColor: theme.colorScheme.outlineVariant.withOpacity(0.5),
+              ),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SingleChildScrollView(
+                  child: DataTable(
+                    sortColumnIndex: _sortColumnIndex,
+                    sortAscending: _sortAscending,
+                    columns: widget.columns,
+                    rows: widget.rows.map((item) => widget.rowBuilder(item)).toList(),
+                    showCheckboxColumn: false,
+                    headingRowHeight: 48,
+                    dataRowMinHeight: 52,
+                    dataRowMaxHeight: 56,
+                    columnSpacing: 24,
+                    horizontalMargin: 20,
+                  ),
+                ),
               ),
             ),
           ),

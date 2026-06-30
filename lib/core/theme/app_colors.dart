@@ -1,23 +1,23 @@
 import 'package:flutter/material.dart';
 
-// Seed color: deep indigo — professional, trustworthy
-const Color kSeedColor = Color(0xFF3F4DC8);
+// Seed color: vibrant orange — energetic, warm
+const Color kSeedColor = Color(0xFFFF7622);
 
-// Status colors (used in chips, badges, charts)
-const Color kSuccess = Color(0xFF1B8A5A);
-const Color kWarning = Color(0xFFF5A623);
-const Color kDanger = Color(0xFFD93025);
-const Color kInfo = Color(0xFF1A73E8);
-const Color kNeutral = Color(0xFF6B7280);
+// Status colors (modern premium HSL-derived tones)
+const Color kSuccess = Color(0xFF10B981); // Emerald green
+const Color kWarning = Color(0xFFF59E0B); // Amber yellow
+const Color kDanger = Color(0xFFEF4444);  // Rose red
+const Color kInfo = Color(0xFF3B82F6);    // Blue/Indigo
+const Color kNeutral = Color(0xFF64748B); // Slate gray
 
-// Chart palette (8 distinct colors)
+// Chart palette (8 premium distinct colors)
 const List<Color> kChartPalette = [
-  Color(0xFF3F4DC8),
-  Color(0xFF10B981),
-  Color(0xFFF59E0B),
-  Color(0xFFEF4444),
-  Color(0xFF8B5CF6),
-  Color(0xFF06B6D4),
-  Color(0xFFF97316),
-  Color(0xFF84CC16),
+  Color(0xFFFF7622), // Vibrant Orange
+  Color(0xFF10B981), // Emerald
+  Color(0xFF3B82F6), // Indigo
+  Color(0xFF8B5CF6), // Violet
+  Color(0xFFEC4899), // Pink
+  Color(0xFF06B6D4), // Cyan
+  Color(0xFFF59E0B), // Amber
+  Color(0xFF14B8A6), // Teal
 ];

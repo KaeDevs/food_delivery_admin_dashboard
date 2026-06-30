@@ -5,8 +5,8 @@ class MockRestaurants {
 
   static void seed() {
     final now = DateTime.now();
-    restaurants = [
-      // Zone: Koramangala
+    final List<Restaurant> _rawList = [
+      // Zone: Koramangala (center 12.9352, 77.6245)
       Restaurant(
         id: 'rest-001', name: 'Spice Garden', cuisine: 'Indian',
         zoneId: 'koramangala', status: RestaurantStatus.active,
@@ -15,7 +15,7 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 120)),
         weeklySettlementPending: 45600.0, totalOrdersThisMonth: 156,
-        isOnline: true,
+        isOnline: true, latitude: 12.9365, longitude: 77.6230,
       ),
       Restaurant(
         id: 'rest-002', name: 'Biryani Blues', cuisine: 'Biryani',
@@ -25,7 +25,7 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 200)),
         weeklySettlementPending: 78900.0, totalOrdersThisMonth: 312,
-        isOnline: true,
+        isOnline: true, latitude: 12.9345, longitude: 77.6260,
       ),
       Restaurant(
         id: 'rest-003', name: 'Dragon Wok', cuisine: 'Chinese',
@@ -35,9 +35,9 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 90)),
         weeklySettlementPending: 34200.0, totalOrdersThisMonth: 198,
-        isOnline: true,
+        isOnline: true, latitude: 12.9370, longitude: 77.6215,
       ),
-      // Zone: Whitefield
+      // Zone: Whitefield (center 12.9698, 77.7500)
       Restaurant(
         id: 'rest-004', name: 'Pizza Paradise', cuisine: 'Pizza',
         zoneId: 'whitefield', status: RestaurantStatus.active,
@@ -46,7 +46,7 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 300)),
         weeklySettlementPending: 56700.0, totalOrdersThisMonth: 245,
-        isOnline: true,
+        isOnline: true, latitude: 12.9710, longitude: 77.7485,
       ),
       Restaurant(
         id: 'rest-005', name: 'Green Bowl', cuisine: 'Healthy',
@@ -56,7 +56,7 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 180)),
         weeklySettlementPending: 23400.0, totalOrdersThisMonth: 134,
-        isOnline: true,
+        isOnline: true, latitude: 12.9690, longitude: 77.7515,
       ),
       Restaurant(
         id: 'rest-006', name: 'Tandoori Nights', cuisine: 'Indian',
@@ -65,9 +65,9 @@ class MockRestaurants {
         promisedPrepTimeMinutes: 30, fssaiStatus: DocumentStatus.pending,
         gstStatus: DocumentStatus.underReview,
         weeklySettlementPending: 0.0, totalOrdersThisMonth: 0,
-        isOnline: false,
+        isOnline: false, latitude: 12.9715, longitude: 77.7470,
       ),
-      // Zone: Indiranagar
+      // Zone: Indiranagar (center 12.9784, 77.6408)
       Restaurant(
         id: 'rest-007', name: 'Pasta Factory', cuisine: 'Italian',
         zoneId: 'indiranagar', status: RestaurantStatus.active,
@@ -76,7 +76,7 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 150)),
         weeklySettlementPending: 41200.0, totalOrdersThisMonth: 187,
-        isOnline: true,
+        isOnline: true, latitude: 12.9795, longitude: 77.6395,
       ),
       Restaurant(
         id: 'rest-008', name: 'Burger Junction', cuisine: 'Fast Food',
@@ -86,7 +86,7 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 60)),
         weeklySettlementPending: 67800.0, totalOrdersThisMonth: 289,
-        isOnline: true,
+        isOnline: true, latitude: 12.9775, longitude: 77.6420,
       ),
       Restaurant(
         id: 'rest-009', name: 'Sweet Treats', cuisine: 'Desserts',
@@ -96,7 +96,7 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 240)),
         weeklySettlementPending: 19800.0, totalOrdersThisMonth: 156,
-        isOnline: true,
+        isOnline: true, latitude: 12.9800, longitude: 77.6380,
       ),
       Restaurant(
         id: 'rest-010', name: 'Wok Express', cuisine: 'Chinese',
@@ -106,9 +106,9 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.subtract(const Duration(days: 15)),
         weeklySettlementPending: 12300.0, totalOrdersThisMonth: 67,
-        isOnline: false,
+        isOnline: false, latitude: 12.9768, longitude: 77.6435,
       ),
-      // Zone: HSR Layout
+      // Zone: HSR Layout (center 12.9116, 77.6389)
       Restaurant(
         id: 'rest-011', name: 'Royal Biryani House', cuisine: 'Biryani',
         zoneId: 'hsr_layout', status: RestaurantStatus.active,
@@ -117,7 +117,7 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 200)),
         weeklySettlementPending: 52100.0, totalOrdersThisMonth: 210,
-        isOnline: true,
+        isOnline: true, latitude: 12.9125, longitude: 77.6375,
       ),
       Restaurant(
         id: 'rest-012', name: 'Salad Bar', cuisine: 'Healthy',
@@ -127,7 +127,7 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 280)),
         weeklySettlementPending: 15600.0, totalOrdersThisMonth: 98,
-        isOnline: true,
+        isOnline: true, latitude: 12.9108, longitude: 77.6405,
       ),
       Restaurant(
         id: 'rest-013', name: 'Chai & More', cuisine: 'Indian',
@@ -136,9 +136,9 @@ class MockRestaurants {
         promisedPrepTimeMinutes: 20, fssaiStatus: DocumentStatus.approved,
         gstStatus: DocumentStatus.rejected,
         weeklySettlementPending: 8900.0, totalOrdersThisMonth: 34,
-        isOnline: false,
+        isOnline: false, latitude: 12.9130, longitude: 77.6360,
       ),
-      // Zone: Electronic City
+      // Zone: Electronic City (center 12.8399, 77.6770)
       Restaurant(
         id: 'rest-014', name: 'Dosa Planet', cuisine: 'Indian',
         zoneId: 'electronic_city', status: RestaurantStatus.active,
@@ -147,7 +147,7 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 310)),
         weeklySettlementPending: 29800.0, totalOrdersThisMonth: 167,
-        isOnline: true,
+        isOnline: true, latitude: 12.8410, longitude: 77.6758,
       ),
       Restaurant(
         id: 'rest-015', name: 'The Cake Shop', cuisine: 'Desserts',
@@ -157,7 +157,7 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 100)),
         weeklySettlementPending: 18200.0, totalOrdersThisMonth: 89,
-        isOnline: true,
+        isOnline: true, latitude: 12.8390, longitude: 77.6785,
       ),
       Restaurant(
         id: 'rest-016', name: 'Noodle House', cuisine: 'Chinese',
@@ -167,9 +167,9 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 30)),
         weeklySettlementPending: 21500.0, totalOrdersThisMonth: 112,
-        isOnline: false,
+        isOnline: false, latitude: 12.8415, longitude: 77.6745,
       ),
-      // Zone: Jayanagar
+      // Zone: Jayanagar (center 12.9308, 77.5826)
       Restaurant(
         id: 'rest-017', name: 'Idli Factory', cuisine: 'Indian',
         zoneId: 'jayanagar', status: RestaurantStatus.active,
@@ -178,7 +178,7 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 350)),
         weeklySettlementPending: 34500.0, totalOrdersThisMonth: 278,
-        isOnline: true,
+        isOnline: true, latitude: 12.9318, longitude: 77.5815,
       ),
       Restaurant(
         id: 'rest-018', name: 'Slice of Italy', cuisine: 'Italian',
@@ -188,7 +188,7 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 170)),
         weeklySettlementPending: 28900.0, totalOrdersThisMonth: 145,
-        isOnline: true,
+        isOnline: true, latitude: 12.9300, longitude: 77.5838,
       ),
       Restaurant(
         id: 'rest-019', name: 'Wrap & Roll', cuisine: 'Fast Food',
@@ -197,7 +197,7 @@ class MockRestaurants {
         promisedPrepTimeMinutes: 18, fssaiStatus: DocumentStatus.pending,
         gstStatus: DocumentStatus.pending,
         weeklySettlementPending: 0.0, totalOrdersThisMonth: 0,
-        isOnline: false,
+        isOnline: false, latitude: 12.9322, longitude: 77.5806,
       ),
       Restaurant(
         id: 'rest-020', name: 'Kebab Corner', cuisine: 'Indian',
@@ -207,8 +207,18 @@ class MockRestaurants {
         gstStatus: DocumentStatus.approved,
         fssaiExpiry: now.add(const Duration(days: 220)),
         weeklySettlementPending: 39200.0, totalOrdersThisMonth: 178,
-        isOnline: true,
+        isOnline: true, latitude: 12.9296, longitude: 77.5848,
       ),
     ];
+
+    final defaultImages = [
+      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1466978913421-bac2e104934a?auto=format&fit=crop&q=80&w=800',
+      'https://images.unsplash.com/photo-1481833761820-0509d3217039?auto=format&fit=crop&q=80&w=800',
+    ];
+
+    restaurants = _rawList.map((r) => r.copyWith(imageUrls: defaultImages)).toList();
   }
 }

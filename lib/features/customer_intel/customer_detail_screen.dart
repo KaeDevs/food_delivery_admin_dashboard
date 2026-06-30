@@ -46,6 +46,7 @@ class CustomerDetailScreen extends ConsumerWidget {
                 _InfoCard('Lifetime Value', Formatters.currency(customer.lifetimeValue)),
                 _InfoCard('Cohort', customer.acquisitionCohort),
                 _InfoCard('Last Order', Formatters.dateShort(customer.lastOrderDate)),
+                _InfoCard('Address', customer.fullAddress),
               ],
             ),
             const SizedBox(height: 32),

@@ -17,11 +17,23 @@ class ShellScaffold extends ConsumerStatefulWidget {
 
 class _ShellScaffoldState extends ConsumerState<ShellScaffold> {
   int _selectedIndex = 0;
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   static const _routes = [
-    '/executive', '/live-ops', '/dispatch', '/merchants', '/riders',
-    '/finance', '/trust', '/customers', '/geo-ops', '/support',
-    '/identity', '/ratings', '/promotions', '/reporting',
+    '/dashboard',
+    '/live-ops',
+    '/dispatch',
+    '/merchants',
+    '/riders',
+    '/finance',
+    '/trust',
+    '/customers',
+    '/geo-ops',
+    '/support',
+    '/identity',
+    '/ratings',
+    '/promotions',
+    '/reporting',
   ];
 
   @override
@@ -69,89 +81,166 @@ class _ShellScaffoldState extends ConsumerState<ShellScaffold> {
       }
     }
 
-    return Scaffold(
-      body: Row(
-        children: [
-          // Navigation Rail
-          NavRail(
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: _onDestinationSelected,
-          ),
-          VerticalDivider(
-            width: 1,
-            thickness: 1,
-            color: theme.colorScheme.outlineVariant,
-          ),
-          // Main content
-          Expanded(
-            child: Column(
-              children: [
-                // Top bar
-                Container(
-                  height: 56,
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    border: Border(
-                      bottom: BorderSide(color: theme.colorScheme.outlineVariant),
-                    ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < 900;
+        final isMedium =
+            constraints.maxWidth >= 900 && constraints.maxWidth < 1200;
+
+        return Scaffold(
+          key: _scaffoldKey,
+          drawer: isCompact
+              ? Drawer(
+                  child: NavRail(
+                    selectedIndex: _selectedIndex,
+                    onDestinationSelected: (idx) {
+                      _onDestinationSelected(idx);
+                      Navigator.pop(context);
+                    },
+                    isCollapsed: false,
                   ),
-                  child: Row(
-                    children: [
-                      Text(
-                        pageTitle,
-                        style: theme.textTheme.titleMedium,
-                      ),
-                      const Spacer(),
-                      // Alert bell
-                      Stack(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.notifications_outlined, size: 22),
-                            onPressed: () {
-                              _showAlertPanel(context, ref);
-                            },
+                )
+              : null,
+          body: Row(
+            children: [
+              // Navigation Rail
+              if (!isCompact)
+                NavRail(
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: _onDestinationSelected,
+                  isCollapsed: isMedium,
+                ),
+              if (!isCompact)
+                VerticalDivider(
+                  width: 1,
+                  thickness: 1,
+                  color: theme.colorScheme.outlineVariant,
+                ),
+              // Main content
+              Expanded(
+                child: Column(
+                  children: [
+                    // Top bar
+                    Container(
+                      height: 56,
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface,
+                        border: Border(
+                          bottom: BorderSide(
+                            color: theme.colorScheme.outlineVariant,
                           ),
-                          if (alertCount > 0)
-                            Positioned(
-                              right: 4,
-                              top: 4,
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: kDanger,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Text(
-                                  '$alertCount',
-                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                            ),
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(theme.brightness == Brightness.dark ? 0.1 : 0.01),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
                         ],
                       ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: kSeedColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          ref.watch(authProvider)?.role ?? '',
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: kSeedColor),
-                        ),
+                      child: Row(
+                        children: [
+                          if (isCompact)
+                            IconButton(
+                              icon: const Icon(Icons.menu),
+                              onPressed: () =>
+                                  _scaffoldKey.currentState?.openDrawer(),
+                            ),
+                          if (isCompact) const SizedBox(width: 8),
+                          Text(
+                            pageTitle,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          const Spacer(),
+                          // Alert bell
+                          Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: IconButton(
+                                  icon: Icon(
+                                    Icons.notifications_none_rounded,
+                                    size: 20,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                  onPressed: () {
+                                    _showAlertPanel(context, ref);
+                                  },
+                                ),
+                              ),
+                              if (alertCount > 0)
+                                Positioned(
+                                  right: -2,
+                                  top: -2,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: kDanger,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: theme.colorScheme.surface,
+                                        width: 1.5,
+                                      ),
+                                    ),
+                                    constraints: const BoxConstraints(
+                                      minWidth: 16,
+                                      minHeight: 16,
+                                    ),
+                                    child: Text(
+                                      '$alertCount',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(width: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: theme.colorScheme.primary.withOpacity(0.2),
+                              ),
+                            ),
+                            child: Text(
+                              ref.watch(authProvider)?.role ?? '',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: theme.colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                    // Page content
+                    Expanded(child: widget.child),
+                  ],
                 ),
-                // Page content
-                Expanded(child: widget.child),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -188,7 +277,10 @@ class _ShellScaffoldState extends ConsumerState<ShellScaffold> {
                       padding: const EdgeInsets.all(16),
                       child: Row(
                         children: [
-                          Text('Active Alerts', style: theme.textTheme.titleSmall),
+                          Text(
+                            'Active Alerts',
+                            style: theme.textTheme.titleSmall,
+                          ),
                           const Spacer(),
                           TextButton(
                             onPressed: () {
@@ -208,21 +300,71 @@ class _ShellScaffoldState extends ConsumerState<ShellScaffold> {
                       )
                     else
                       ...alerts.map((alert) {
-                        final color = alert.severity == AlertSeverity.critical ? kDanger
-                            : alert.severity == AlertSeverity.warning ? kWarning : kInfo;
+                        final color = alert.severity == AlertSeverity.critical
+                            ? kDanger
+                            : alert.severity == AlertSeverity.warning
+                            ? kWarning
+                            : kInfo;
                         return ListTile(
                           leading: Icon(
-                            alert.severity == AlertSeverity.critical ? Icons.error : Icons.warning_amber,
+                            alert.severity == AlertSeverity.critical
+                                ? Icons.error
+                                : Icons.warning_amber,
                             color: color,
                             size: 20,
                           ),
-                          title: Text(alert.name, style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600)),
-                          subtitle: Text(alert.ownerRole, style: theme.textTheme.labelSmall),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.close, size: 16),
-                            onPressed: () {
-                              ref.read(alertProvider.notifier).dismiss(alert.id);
-                            },
+                          title: Text(
+                            alert.name,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            alert.ownerRole,
+                            style: theme.textTheme.labelSmall,
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(ctx).pop();
+                                  String route = '/dashboard';
+                                  final roleLow = alert.ownerRole.toLowerCase();
+                                  if (roleLow.contains('dispatch'))
+                                    route = '/dispatch';
+                                  else if (roleLow.contains('merchant'))
+                                    route = '/merchants';
+                                  else if (roleLow.contains('finance'))
+                                    route = '/finance';
+                                  else if (roleLow.contains('ops') ||
+                                      roleLow.contains('operations'))
+                                    route = '/live-ops';
+                                  // else if (roleLow.contains('trust'))
+                                  //   route = '/trust';
+
+                                  final visibleRoutes =
+                                      NavRail.getVisibleRoutesForRole(
+                                        ref.read(authProvider)?.role ?? '',
+                                      );
+                                  if (visibleRoutes.contains(route)) {
+                                    context.go(route);
+                                  }
+                                },
+                                child: const Text(
+                                  'Go to →',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.close, size: 16),
+                                onPressed: () {
+                                  ref
+                                      .read(alertProvider.notifier)
+                                      .dismiss(alert.id);
+                                },
+                              ),
+                            ],
                           ),
                           dense: true,
                         );
@@ -238,7 +380,7 @@ class _ShellScaffoldState extends ConsumerState<ShellScaffold> {
   }
 
   static const _routeTitles = {
-    '/executive': 'Executive Command Centre',
+    '/dashboard': 'Dashboard',
     '/live-ops': 'Live Operations',
     '/dispatch': 'Dispatch & Assignment',
     '/merchants': 'Merchant Management',

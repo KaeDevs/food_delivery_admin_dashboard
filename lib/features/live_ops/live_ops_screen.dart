@@ -11,6 +11,8 @@ import '../../shared/widgets/section_header.dart';
 import '../../shared/widgets/empty_state.dart';
 import 'widgets/sla_badge.dart';
 import 'widgets/intervention_sheet.dart';
+import '../dashboard/widgets/kpi_card.dart';
+import '../dashboard/widgets/dashboard_card.dart';
 
 class LiveOpsScreen extends ConsumerStatefulWidget {
   const LiveOpsScreen({super.key});
@@ -59,233 +61,323 @@ class _LiveOpsScreenState extends ConsumerState<LiveOpsScreen> {
         ? allOrders.where((o) => o.id == _selectedOrderId).firstOrNull
         : null;
 
+    final slaAtRiskCount = allOrders.where((o) => o.isSlaBreached).length;
+
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top stat chips
+          // Top stats row using premium KpiCards
           Wrap(
             spacing: 16,
-            runSpacing: 8,
+            runSpacing: 16,
             children: [
-              _StatChip(
-                label: 'Active',
+              KpiCard(
+                title: 'Active Orders',
                 value: '${active.length}',
-                color: kInfo,
+                icon: Icons.local_shipping_outlined,
+                trendColor: kInfo,
               ),
-              _StatChip(
-                label: 'Delayed',
+              KpiCard(
+                title: 'Delayed Orders',
                 value: '${delayed.length}',
-                color: kDanger,
+                icon: Icons.warning_amber_rounded,
+                trendColor: kDanger,
               ),
-              _StatChip(
-                label: 'SLA At Risk',
-                value: '${allOrders.where((o) => o.isSlaBreached).length}',
-                color: kWarning,
+              KpiCard(
+                title: 'SLA At Risk',
+                value: '$slaAtRiskCount',
+                icon: Icons.timer_outlined,
+                trendColor: kWarning,
               ),
-              _StatChip(label: 'Avg ETA', value: '32 min', color: kNeutral),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Filter bar
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              SizedBox(
-                width: 160,
-                height: 36,
-                child: DropdownButtonFormField<String>(
-                  value: _zoneFilter,
-                  isDense: true,
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    const DropdownMenuItem(
-                      value: 'all',
-                      child: Text('All Zones', style: TextStyle(fontSize: 13)),
-                    ),
-                    ...[
-                      'koramangala',
-                      'whitefield',
-                      'indiranagar',
-                      'hsr_layout',
-                      'electronic_city',
-                      'jayanagar',
-                    ].map(
-                      (z) => DropdownMenuItem(
-                        value: z,
-                        child: Text(
-                          z
-                              .replaceAll('_', ' ')
-                              .split(' ')
-                              .map(
-                                (w) => '${w[0].toUpperCase()}${w.substring(1)}',
-                              )
-                              .join(' '),
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                      ),
-                    ),
-                  ],
-                  onChanged: (v) => setState(() => _zoneFilter = v ?? 'all'),
-                ),
-              ),
-              FilterChip(
-                label: const Text('Delayed Only'),
-                selected: _delayedOnly,
-                onSelected: (v) => setState(() => _delayedOnly = v),
-              ),
-              SizedBox(
-                width: 200,
-                height: 36,
-                child: TextField(
-                  style: const TextStyle(fontSize: 13),
-                  decoration: const InputDecoration(
-                    hintText: 'Search order ID...',
-                    prefixIcon: Icon(Icons.search, size: 18),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (v) => setState(() => _searchQuery = v),
-                ),
+              const KpiCard(
+                title: 'Average ETA',
+                value: '32 min',
+                icon: Icons.av_timer_rounded,
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 32),
           // Main content
           Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Order list
+                // Order list wrapped in a card
                 Expanded(
-                  flex: _selectedOrderId != null ? 5 : 10,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${filteredOrders.length} orders',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: filteredOrders.isEmpty
-                            ? const EmptyState(
-                                icon: Icons.inbox_outlined,
-                                title: 'No orders found',
-                                subtitle:
-                                    'Try adjusting your filters or search query.',
-                              )
-                            : SingleChildScrollView(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: DataTable(
-                                    headingRowHeight: 44,
-                                    dataRowMinHeight: 48,
-                                    dataRowMaxHeight: 52,
-                                    columnSpacing: 20,
-                                    showCheckboxColumn: false,
-                                    columns: const [
-                                      DataColumn(label: Text('Order ID')),
-                                      DataColumn(label: Text('Status')),
-                                      DataColumn(
-                                        label: Text('Value'),
-                                        numeric: true,
-                                      ),
-                                      DataColumn(label: Text('Zone')),
-                                      DataColumn(label: Text('Placed')),
-                                      DataColumn(label: Text('SLA')),
-                                    ],
-                                    rows: filteredOrders.map((order) {
-                                      final isSelected =
-                                          order.id == _selectedOrderId;
-                                      return DataRow(
-                                        selected: isSelected,
-                                        color: WidgetStatePropertyAll(
-                                          order.isSlaBreached
-                                              ? kDanger.withOpacity(0.05)
-                                              : isSelected
-                                              ? theme
-                                                    .colorScheme
-                                                    .primaryContainer
-                                                    .withOpacity(0.3)
-                                              : null,
-                                        ),
-                                        onSelectChanged: (_) => setState(
-                                          () => _selectedOrderId = order.id,
-                                        ),
-                                        cells: [
-                                          DataCell(
-                                            Text(
-                                              order.id,
-                                              style: const TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ),
-                                          DataCell(
-                                            StatusChip(
-                                              label: order.statusLabel,
-                                              color: _statusColor(order.status),
-                                            ),
-                                          ),
-                                          DataCell(
-                                            Text(
-                                              Formatters.currency(
-                                                order.totalValue,
-                                              ),
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ),
-                                          DataCell(
-                                            Text(
-                                              order.zoneId.replaceAll('_', ' '),
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ),
-                                          DataCell(
-                                            Text(
-                                              Formatters.relativeTime(
-                                                order.placedAt,
-                                              ),
-                                              style: const TextStyle(
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ),
-                                          DataCell(SlaBadge(order: order)),
-                                        ],
-                                      );
-                                    }).toList(),
+                  flex: _selectedOrderId != null ? 7 : 12,
+                  child: DashboardCard(
+                    title: 'Active Orders Queue',
+                    subtitle:
+                        'Real-time tracking of platform orders and delivery SLA metrics',
+                    fillHeight: true,
+                    actions: [
+                      // Filter items in the card header actions
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 140,
+                            height: 36,
+                            child: DropdownButtonFormField<String>(
+                              initialValue: _zoneFilter,
+                              isDense: true,
+                              decoration: InputDecoration(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: theme.colorScheme.outlineVariant,
                                   ),
                                 ),
                               ),
+                              items: [
+                                const DropdownMenuItem(
+                                  value: 'all',
+                                  child: Text(
+                                    'All Zones',
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                                ...[
+                                  'koramangala',
+                                  'whitefield',
+                                  'indiranagar',
+                                  'hsr_layout',
+                                  'electronic_city',
+                                  'jayanagar',
+                                ].map(
+                                  (z) => DropdownMenuItem(
+                                    value: z,
+                                    child: Text(
+                                      z
+                                          .replaceAll('_', ' ')
+                                          .split(' ')
+                                          .map(
+                                            (w) =>
+                                                '${w[0].toUpperCase()}${w.substring(1)}',
+                                          )
+                                          .join(' '),
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              onChanged: (v) =>
+                                  setState(() => _zoneFilter = v ?? 'all'),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          FilterChip(
+                            label: const Text(
+                              'Delayed Only',
+                              style: TextStyle(fontSize: 11),
+                            ),
+                            selected: _delayedOnly,
+                            onSelected: (v) => setState(() => _delayedOnly = v),
+                            padding: EdgeInsets.zero,
+                            visualDensity: VisualDensity.compact,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          SizedBox(
+                            width: 180,
+                            height: 36,
+                            child: TextField(
+                              style: const TextStyle(fontSize: 12),
+                              decoration: InputDecoration(
+                                hintText: 'Search order ID...',
+                                prefixIcon: const Icon(Icons.search, size: 16),
+                                isDense: true,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: theme.colorScheme.outlineVariant,
+                                  ),
+                                ),
+                              ),
+                              onChanged: (v) =>
+                                  setState(() => _searchQuery = v),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${filteredOrders.length} orders found'.toUpperCase(),
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Expanded(
+                          child: filteredOrders.isEmpty
+                              ? const EmptyState(
+                                  icon: Icons.inbox_outlined,
+                                  title: 'No orders found',
+                                  subtitle:
+                                      'Try adjusting your filters or search query.',
+                                )
+                              : LayoutBuilder(
+                                  builder: (context, constraints) => SingleChildScrollView(
+                                    child: SingleChildScrollView(
+                                      scrollDirection: Axis.horizontal,
+                                      child: ConstrainedBox(
+                                        constraints: BoxConstraints(
+                                          minWidth: constraints.maxWidth,
+                                        ),
+                                        child: Theme(
+                                          data: theme.copyWith(
+                                            dataTableTheme: DataTableThemeData(
+                                              headingRowColor:
+                                                  WidgetStateProperty.all(
+                                                theme
+                                                    .colorScheme
+                                                    .surfaceContainerLow,
+                                              ),
+                                              headingTextStyle: const TextStyle(
+                                                fontFamily: 'Inter',
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                letterSpacing: 0.6,
+                                              ),
+                                              dataTextStyle: const TextStyle(
+                                                fontFamily: 'Inter',
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                            ),
+                                          ),
+                                          child: DataTable(
+                                            headingRowHeight: 56,
+                                            dataRowMinHeight: 56,
+                                            dataRowMaxHeight: 64,
+                                            columnSpacing: 24,
+                                            showCheckboxColumn: false,
+                                            columns: const [
+                                              DataColumn(
+                                                label: Text('ORDER ID'),
+                                              ),
+                                              DataColumn(label: Text('STATUS')),
+                                              DataColumn(
+                                                label: Text('VALUE'),
+                                                numeric: true,
+                                              ),
+                                              DataColumn(label: Text('ZONE')),
+                                              DataColumn(label: Text('PLACED')),
+                                              DataColumn(label: Text('SLA')),
+                                            ],
+                                            rows: filteredOrders.map((order) {
+                                              final isSelected =
+                                                  order.id == _selectedOrderId;
+                                              return DataRow(
+                                                selected: isSelected,
+                                                color: WidgetStatePropertyAll(
+                                                  order.isSlaBreached
+                                                      ? kDanger.withValues(
+                                                          alpha: 0.05,
+                                                        )
+                                                      : isSelected
+                                                      ? theme
+                                                            .colorScheme
+                                                            .primaryContainer
+                                                            .withValues(
+                                                              alpha: 0.2,
+                                                            )
+                                                      : null,
+                                                ),
+                                                onSelectChanged: (_) =>
+                                                    setState(
+                                                      () => _selectedOrderId =
+                                                          order.id,
+                                                    ),
+                                                cells: [
+                                                  DataCell(
+                                                    Text(
+                                                      order.id,
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    StatusChip(
+                                                      label: order.statusLabel,
+                                                      color: _statusColor(
+                                                        order.status,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Text(
+                                                      Formatters.currency(
+                                                        order.totalValue,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Text(
+                                                      order.zoneId
+                                                          .replaceAll('_', ' ')
+                                                          .split(' ')
+                                                          .map(
+                                                            (w) =>
+                                                                '${w[0].toUpperCase()}${w.substring(1)}',
+                                                          )
+                                                          .join(' '),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Text(
+                                                      Formatters.relativeTime(
+                                                        order.placedAt,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    SlaBadge(order: order),
+                                                  ),
+                                                ],
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                // Detail panel
+                // Detail panel wrapped in a DashboardCard
                 if (selectedOrder != null) ...[
-                  VerticalDivider(
-                    width: 1,
-                    color: theme.colorScheme.outlineVariant,
-                  ),
+                  const SizedBox(width: 24),
                   Expanded(
                     flex: 5,
                     child: _OrderDetailPanel(
@@ -321,51 +413,6 @@ class _LiveOpsScreenState extends ConsumerState<LiveOpsScreen> {
   }
 }
 
-class _StatChip extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  const _StatChip({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.2)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: color,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _OrderDetailPanel extends ConsumerWidget {
   final Order order;
   final List<dynamic> riders;
@@ -378,47 +425,33 @@ class _OrderDetailPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final auth = ref.watch(authProvider);
     final isOpsAdmin =
         auth?.role == 'Super Admin' || auth?.role == 'Operations Admin';
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return DashboardCard(
+      title: order.id,
+      subtitle: 'Placed ${Formatters.relativeTime(order.placedAt)}',
+      fillHeight: true,
+      actions: [
+        StatusChip(label: order.statusLabel, color: _statusColor(order.status)),
+        const SizedBox(width: 8),
+        IconButton(icon: const Icon(Icons.close, size: 20), onPressed: onClose),
+      ],
+      child: ListView(
+        shrinkWrap: true,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                children: [
-                  Text(
-                    order.id,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  StatusChip(
-                    label: order.statusLabel,
-                    color: _statusColor(order.status),
-                  ),
-                ],
-              ),
-              IconButton(
-                icon: const Icon(Icons.close, size: 20),
-                onPressed: onClose,
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
           // Order info
           _DetailRow('Total Value', Formatters.currency(order.totalValue)),
           _DetailRow('Payment', order.paymentChannel.toUpperCase()),
-          _DetailRow('Zone', order.zoneId.replaceAll('_', ' ')),
+          _DetailRow(
+            'Zone',
+            order.zoneId
+                .replaceAll('_', ' ')
+                .split(' ')
+                .map((w) => '${w[0].toUpperCase()}${w.substring(1)}')
+                .join(' '),
+          ),
           _DetailRow('Placed', Formatters.dateTime(order.placedAt)),
           if (order.promisedDeliveryAt != null)
             _DetailRow(
@@ -431,12 +464,12 @@ class _OrderDetailPanel extends ConsumerWidget {
               Formatters.dateTime(order.actualDeliveryAt!),
             ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           const SectionHeader(title: 'Order Timeline'),
           const SizedBox(height: 8),
           _OrderTimeline(order: order),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           const SectionHeader(title: 'Items'),
           const SizedBox(height: 8),
           ...order.items.map(
@@ -448,13 +481,13 @@ class _OrderDetailPanel extends ConsumerWidget {
                   Flexible(
                     child: Text(
                       '${item.name} × ${item.quantity}',
-                      style: theme.textTheme.bodySmall,
+                      style: const TextStyle(fontFamily: 'Inter', fontSize: 13),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
                     Formatters.currency(item.price),
-                    style: theme.textTheme.bodySmall,
+                    style: const TextStyle(fontFamily: 'Inter', fontSize: 13),
                   ),
                 ],
               ),
@@ -462,7 +495,7 @@ class _OrderDetailPanel extends ConsumerWidget {
           ),
 
           if (order.riderId != null) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             _DetailRow('Rider ID', order.riderId!),
           ],
 
@@ -556,7 +589,7 @@ class _DetailRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -564,7 +597,9 @@ class _DetailRow extends StatelessWidget {
             width: 140,
             child: Text(
               label,
-              style: theme.textTheme.bodySmall?.copyWith(
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
@@ -572,8 +607,10 @@ class _DetailRow extends StatelessWidget {
           Expanded(
             child: Text(
               value,
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w500,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -633,14 +670,16 @@ class _OrderTimeline extends StatelessWidget {
                   Container(
                     width: 2,
                     height: 24,
-                    color: kSuccess.withOpacity(0.3),
+                    color: kSuccess.withValues(alpha: 0.3),
                   ),
               ],
             ),
             const SizedBox(width: 8),
             Text(
               _label(e.value),
-              style: theme.textTheme.bodySmall?.copyWith(
+              style: TextStyle(
+                fontFamily: 'Inter',
+                fontSize: 12,
                 fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
                 color: isCurrent ? color : theme.colorScheme.onSurfaceVariant,
               ),

@@ -45,7 +45,7 @@ class _KpiCardState extends State<KpiCard> {
           color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           elevation: _isHovered ? 6 : 0,
-          shadowColor: theme.colorScheme.shadow.withOpacity(0.08),
+          shadowColor: theme.colorScheme.shadow.withValues(alpha: 0.08),
           child: InkWell(
             onTap: widget.onTap,
             borderRadius: BorderRadius.circular(16),
@@ -56,7 +56,7 @@ class _KpiCardState extends State<KpiCard> {
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: _isHovered
-                      ? (widget.trendColor ?? theme.colorScheme.primary).withOpacity(0.4)
+                      ? (widget.trendColor ?? theme.colorScheme.primary).withValues(alpha: 0.4)
                       : theme.colorScheme.outlineVariant,
                   width: 1,
                 ),
@@ -71,7 +71,7 @@ class _KpiCardState extends State<KpiCard> {
                         Container(
                           padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
-                            color: (widget.trendColor ?? theme.colorScheme.primary).withOpacity(0.08),
+                            color: (widget.trendColor ?? theme.colorScheme.primary).withValues(alpha: 0.08),
                             shape: BoxShape.circle,
                           ),
                           child: Icon(

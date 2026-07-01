@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
@@ -13,7 +13,7 @@ import '../../features/rider/rider_list_screen.dart';
 import '../../features/rider/rider_detail_screen.dart';
 import '../../features/ratings/ratings_screen.dart';
 import '../../features/finance/finance_screen.dart';
-import '../../features/trust_safety/trust_screen.dart';
+
 import '../../features/customer_intel/customer_screen.dart';
 import '../../features/customer_intel/customer_detail_screen.dart';
 import '../../features/geo_ops/geo_ops_screen.dart';
@@ -21,7 +21,7 @@ import '../../features/support/support_screen.dart';
 import '../../features/identity/identity_screen.dart';
 import '../../features/promotions/promotions_screen.dart';
 import '../../features/reporting/reporting_screen.dart';
-import '../../features/placeholder_screen.dart';
+
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);

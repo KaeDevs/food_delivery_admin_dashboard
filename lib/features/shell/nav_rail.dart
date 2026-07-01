@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
-import '../../providers/alert_provider.dart';
 import '../../providers/theme_provider.dart';
-import '../../core/theme/app_colors.dart';
 
 class NavRail extends ConsumerWidget {
   final int selectedIndex;

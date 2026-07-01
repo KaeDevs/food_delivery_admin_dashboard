@@ -41,7 +41,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final allOrders = ref.watch(orderProvider);
     final todayOrders = ref.watch(todayOrdersProvider);
     final todayDelivered = ref.watch(todayDeliveredProvider);
@@ -87,15 +86,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Dashboard',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 24),
+          // const Text(
+          //   'Dashboard',
+          //   style: TextStyle(
+          //     fontFamily: 'Inter',
+          //     fontSize: 24,
+          //     fontWeight: FontWeight.w700,
+          //   ),
+          // ),
+          // const SizedBox(height: 24),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
@@ -127,9 +126,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   : null,
                               trendColor:
                                   grossOrderVolume >=
-                                          (yesterdaySnap?.orderVolume ?? 0)
-                                      ? kSuccess
-                                      : kDanger,
+                                      (yesterdaySnap?.orderVolume ?? 0)
+                                  ? kSuccess
+                                  : kDanger,
                               onTap: () => context.go('/live-ops'),
                             ),
                             KpiCard(
@@ -144,8 +143,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               icon: Icons.currency_rupee,
                               trendLabel:
                                   todaySnap != null && yesterdaySnap != null
-                                      ? '${((todaySnap.gmv - yesterdaySnap.gmv) / yesterdaySnap.gmv * 100).toStringAsFixed(1)}%'
-                                      : null,
+                                  ? '${((todaySnap.gmv - yesterdaySnap.gmv) / yesterdaySnap.gmv * 100).toStringAsFixed(1)}%'
+                                  : null,
                               trendColor: gmvToday >= (yesterdaySnap?.gmv ?? 0)
                                   ? kSuccess
                                   : kDanger,
@@ -211,7 +210,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         const SizedBox(height: 32),
                         DashboardCard(
                           title: 'Live Incident Feed',
-                          subtitle: 'Real-time SLA breaches and service violations',
+                          subtitle:
+                              'Real-time SLA breaches and service violations',
                           child: _buildIncidentFeed(firedAlerts, context),
                         ),
                       ],
@@ -228,7 +228,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             children: [
                               DashboardCard(
                                 title: 'GMV & Order Volume (30 Days)',
-                                subtitle: 'Timeline of platform sales performance',
+                                subtitle:
+                                    'Timeline of platform sales performance',
                                 child: SizedBox(
                                   height: 280,
                                   child: GmvChart(snapshots: snapshots),
@@ -237,7 +238,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               const SizedBox(height: 32),
                               DashboardCard(
                                 title: 'Order Status Distribution',
-                                subtitle: 'Breakup of daily order life-cycle states',
+                                subtitle:
+                                    'Breakup of daily order life-cycle states',
                                 child: SizedBox(
                                   height: 240,
                                   width: double.infinity,
@@ -272,8 +274,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   // Section 5: City Drill-Down
                   DashboardCard(
                     title: 'City Zone Performance',
-                    subtitle: 'Operational efficiency and supply metrics by delivery zone',
-                    child: CityDrillDown(zones: dispatch.zones, orders: allOrders),
+                    subtitle:
+                        'Operational efficiency and supply metrics by delivery zone',
+                    child: CityDrillDown(
+                      zones: dispatch.zones,
+                      orders: allOrders,
+                    ),
                   ),
                   const SizedBox(height: 32),
                 ],
@@ -294,17 +300,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         decoration: BoxDecoration(
           color: theme.colorScheme.surfaceContainerLowest,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: theme.colorScheme.outlineVariant,
-          ),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
         ),
         child: Column(
           children: [
-            Icon(
-              Icons.check_circle,
-              color: kSuccess,
-              size: 40,
-            ),
+            Icon(Icons.check_circle, color: kSuccess, size: 40),
             const SizedBox(height: 8),
             Text(
               'All Clear',
@@ -334,8 +334,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         final color = alert.severity == AlertSeverity.critical
             ? kDanger
             : alert.severity == AlertSeverity.warning
-                ? kWarning
-                : kInfo;
+            ? kWarning
+            : kInfo;
         return InkWell(
           onTap: () {
             String route = '/dashboard';
@@ -346,8 +346,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               route = '/merchants';
             else if (roleLow.contains('finance'))
               route = '/finance';
-            else if (roleLow.contains('ops') ||
-                roleLow.contains('operations'))
+            else if (roleLow.contains('ops') || roleLow.contains('operations'))
               route = '/live-ops';
             context.go(route);
           },
@@ -358,9 +357,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             decoration: BoxDecoration(
               color: color.withOpacity(0.05),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: color.withOpacity(0.2),
-              ),
+              border: Border.all(color: color.withOpacity(0.2)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

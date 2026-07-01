@@ -19,22 +19,7 @@ class _ShellScaffoldState extends ConsumerState<ShellScaffold> {
   int _selectedIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  static const _routes = [
-    '/dashboard',
-    '/live-ops',
-    '/dispatch',
-    '/merchants',
-    '/riders',
-    '/finance',
-    '/trust',
-    '/customers',
-    '/geo-ops',
-    '/support',
-    '/identity',
-    '/ratings',
-    '/promotions',
-    '/reporting',
-  ];
+
 
   @override
   void didChangeDependencies() {

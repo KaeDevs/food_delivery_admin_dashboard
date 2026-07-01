@@ -33,12 +33,19 @@ class SlaBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(6),
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: color.withOpacity(0.2), width: 1),
       ),
       child: Text(
         label,
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color),
+        style: TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: color,
+          letterSpacing: 0.2,
+        ),
       ),
     );
   }

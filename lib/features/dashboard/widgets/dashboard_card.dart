@@ -5,6 +5,7 @@ class DashboardCard extends StatelessWidget {
   final String? subtitle;
   final List<Widget>? actions;
   final Widget child;
+  final bool fillHeight;
 
   const DashboardCard({
     super.key,
@@ -12,11 +13,17 @@ class DashboardCard extends StatelessWidget {
     this.subtitle,
     this.actions,
     required this.child,
+    this.fillHeight = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final content = Padding(
+      padding: const EdgeInsets.all(20),
+      child: child,
+    );
+
     return Container(
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
@@ -26,13 +33,13 @@ class DashboardCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: fillHeight ? MainAxisSize.max : MainAxisSize.min,
         children: [
           // Header section
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceContainerLow.withOpacity(0.5),
+              color: theme.colorScheme.surfaceContainerLow.withValues(alpha: 0.5),
               border: Border(
                 bottom: BorderSide(color: theme.colorScheme.outlineVariant),
               ),
@@ -70,12 +77,15 @@ class DashboardCard extends StatelessWidget {
             ),
           ),
           // Content section
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: child,
-          ),
+          if (fillHeight)
+            Expanded(
+              child: content,
+            )
+          else
+            content,
         ],
       ),
     );
   }
 }
+
